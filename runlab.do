@@ -28,16 +28,18 @@ vlog "./src/alu/zero_detection.sv"
 vlog "./src/cpu_single/datamem.sv"
 vlog "./src/cpu_single/instructmem.sv"
 vlog "./src/cpu_single/math.sv"
+#vlog "./src/cpu_single/controlunit.sv"
+vlog "./src/cpu_single/signextend.sv"
 
 # Call vsim to invoke simulator
 #     Make sure the last item on the line is the name of the
 #     testbench module you want to execute.
-vsim -voptargs="+acc" -t 1ps -lib work instructmem_testbench;
+vsim -voptargs="+acc" -t 1ps -lib work alustim;
 
 # Source the wave do file
 #     This should be the file that sets up the signal window for
 #     the module you are testing.
-do "./wave_files/instructmem_wave.do"
+do "./wave_files/alu_wave.do"
 
 # Set the window types
 view wave
