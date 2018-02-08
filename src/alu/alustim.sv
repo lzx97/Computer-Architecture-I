@@ -10,12 +10,14 @@
 // carry_out: on an add or subtract, whether the computation produced a carry-out.
 
 // cntrl			Operation						Notes:
-// 000:			result = B						value of overflow and carry_out unimportant
+// 000:			result = B					value of overflow and carry_out unimportant
+// 001			result = A (<< or >>) B		value of overflow and carry_out unimportant
 // 010:			result = A + B
 // 011:			result = A - B
 // 100:			result = bitwise A & B		value of overflow and carry_out unimportant
 // 101:			result = bitwise A | B		value of overflow and carry_out unimportant
 // 110:			result = bitwise A XOR B	value of overflow and carry_out unimportant
+// 111:			result = A * B				value of overflow and carry_out unimportant
 
 module alustim();
 
@@ -23,13 +25,14 @@ module alustim();
 
 	logic		[63:0]	A, B;
 	logic		[2:0]		cntrl;
+	logic 				shiftdir;
 	logic		[63:0]	result;
-	logic					negative, zero, overflow, carry_out ;
+	logic					negative, zero, overflow, carry_out;
 
-	parameter ALU_PASS_B=3'b000, ALU_ADD=3'b010, ALU_SUBTRACT=3'b011, ALU_AND=3'b100, ALU_OR=3'b101, ALU_XOR=3'b110;
+	parameter ALU_PASS_B=3'b000, ALU_ADD=3'b010, ALU_SUBTRACT=3'b011, ALU_AND=3'b100, ALU_OR=3'b101, ALU_XOR=3'b110, ALU_SHIFT=3'b001, ALU_MUL= 3'b111;
 	
 
-	alu dut (.A, .B, .cntrl, .result, .negative, .zero, .overflow, .carry_out);
+	alu dut (.A, .B, .cntrl, .result, .negative, .zero, .overflow, .carry_out, .shiftdir);
 
 	// Force %t's to print in a nice format.
 	initial $timeformat(-9, 2, " ns", 10);
@@ -110,6 +113,29 @@ module alustim();
 			#(delay);
 			assert(result == (A ^ B) && negative == result[63] && zero == (result == 0));
 		end
-		$stop;
+
+		$display("%t testing shift", $time);
+		cntrl = ALU_SHIFT;
+		shiftdir = 0;
+		for (i = 0; i < 100; i++) begin
+			A = $random(); B = $random();
+			#(delay);
+			assert(result == (A << B[5:0]));
+		end
+
+		shiftdir = 1;
+		for (i = 0; i < 100; i++) begin
+			A = $random(); B = $random();
+			#(delay);
+			assert(result == (A >> B[5:0]));
+		end
+
+		$display("%t testing multiply", $time);
+		cntrl = ALU_MUL;
+		for (i = 0; i < 100; i++) begin
+			A = $random(); B = $random();
+			#(delay);
+			assert(result == (A * B));
+		end
 	end
 endmodule 

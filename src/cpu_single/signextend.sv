@@ -6,7 +6,7 @@ module signextend(instr, result);
         
         // R-type
         if (instr[31:21] == 11'b1xx0101x000) begin
-            result = {{58{instr[15]}, instr[15:10]};
+            //result = {{58{instr[15]}, instr[15:10]};
         end
 
         // D-type
