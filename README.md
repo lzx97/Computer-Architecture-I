@@ -24,3 +24,17 @@ The control for the ALU is shown in the table below (shift and multiply function
 | 111 | result = A * B |
 
 # __Lab 3 - ARM 64-bit Single Cycle CPU__
+
+In this lab, a simple 64-bit ARM Single-Cycle CPU is designed and implemented. 
+The CPU instruction set to be implemented are listed below:
+* ADDI Rd, Rn, Imm12: Reg[Rd] = Reg[Rn] + ZeroExtend(Imm12).
+* ADDS Rd, Rn, Rm: Reg[Rd] = Reg[Rn] + Reg[Rm]. Set flags.
+* B Imm26: PC = PC + SignExtend(Imm26 << 2).
+* B\.LT Imm19: If (flags.negative != flags.overflow) PC = PC + SignExtend(Imm19<<2).
+* CBZ Rt, Imm19: If (Reg[Rt] == 0) PC = PC + SignExtend(Imm19<<2).
+* LDUR Rt, [Rn, #Imm9]: Reg[Rt] = Mem[Reg[Rn] + SignExtend(Imm9)].
+* LSL Rd, Rn, Shamt: Reg[Rd] = Reg[Rn] << Shamt
+* LSR Rd, Rn, Shamt: Reg[Rd] = Reg[Rn] >> Shamt
+* MUL Rd, Rn, Rm: Reg[Rd] = (Reg[Rn]*Reg[Rm])[63:0]
+* STUR Rt, [Rn, #Imm9]: Mem[Reg[Rn] + SignExtend(Imm9)] = Reg[Rt].
+* SUBS Rd, Rn, Rm: Reg[Rd] = Reg[Rn] - Reg[Rm]. Set flags.
