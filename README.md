@@ -18,7 +18,7 @@ The control for the ALU is shown in the table below
 | 010 | result = A + B |
 | 011 | result = A - B |
 | 100 | result = bitwise A & B |
-| 101 | result = bitwise A | B |
+| 101 | result = bitwise A \| B |
 | 110 | result = bitwise A XOR B |
 
 # __Lab 3 - ARM 64-bit Single Cycle CPU__
