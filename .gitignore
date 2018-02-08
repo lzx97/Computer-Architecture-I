@@ -5,6 +5,7 @@
 *.srf
 *.qdf
 *.bat
+*.cdf
 db/*
 incremental_db/*
 output_files/*
