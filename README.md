@@ -15,7 +15,7 @@ The control for the ALU is shown in the table below (shift and multiply function
 | ALU Control | Operation |
 | ----------- | --------- |
 | 000 | result = B |
-| 001 | result == A >> B[5:0] or A << B[5:0]|
+| 001 | result = A >> B[5:0] or A << B[5:0]|
 | 010 | result = A + B |
 | 011 | result = A - B |
 | 100 | result = bitwise A & B |
