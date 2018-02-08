@@ -1,11 +1,11 @@
-ADDI:           1001000100
-ADDS:           10101011000
-B:              000101
-B.LT:           01010100
-CBZ:            10110100
-LDUR:           11111000010
-LSL:            11010011011
-LSR:            11010011010
-
-STUR:           11111000000
-SUBS:           11101011000
+ADDI:           1001000100          I-type
+ADDS:           10101011000         R-type
+B:              000101              B-type
+B.LT:           01010100            CB-type
+CBZ:            10110100            CB-type
+LDUR:           11111000010         D-type
+LSL:            11010011011         R-type
+LSR:            11010011010         R-type
+MUL:            10011011000         R-type
+STUR:           11111000000         D-type
+SUBS:           11101011000         R-type
