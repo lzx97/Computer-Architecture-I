@@ -7,7 +7,7 @@ These registers are constructed from D flip-flops (positive edge-triggered). Reg
 
 # __Lab 2 - ARM 64-bit Arithmetic Logic Unit (ALU)__
 
-In this lab a simple 64-bit ARM Arithmetic Logic Unit (ALU) is designed and implemented in Verilog. 
+A simple 64-bit ARM Arithmetic Logic Unit (ALU) is designed and implemented in Verilog. 
 The ALU has 8 ports which are the two input ports A and B, the output port, ALU control, zero detect flag, overflow detect flag, negative detect flag, and the carryout flag.
 
 The control for the ALU is shown in the table below
@@ -15,10 +15,12 @@ The control for the ALU is shown in the table below
 | ALU Control | Operation |
 | ----------- | --------- |
 | 000 | result = B |
+| 001 | result == A >> B[5:0] or A << B[5:0]|
 | 010 | result = A + B |
 | 011 | result = A - B |
 | 100 | result = bitwise A & B |
 | 101 | result = bitwise A \| B |
 | 110 | result = bitwise A XOR B |
+| 111 | result = A * B |
 
 # __Lab 3 - ARM 64-bit Single Cycle CPU__
