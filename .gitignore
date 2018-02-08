@@ -1,0 +1,14 @@
+*.qpf
+*.qsf
+*.qws
+*.sdc
+*.srf
+*.qdf
+*.bat
+db/*
+incremental_db/*
+output_files/*
+transcript
+*.vstf
+*.wlf
+work/
