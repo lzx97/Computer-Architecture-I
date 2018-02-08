@@ -20,7 +20,7 @@ module mux64x8_1_testbench;
     
     integer i;
     initial begin
-        #10;~
+        #10;
         w0 = 0;
         w1 = 1;
         w2 = 2;

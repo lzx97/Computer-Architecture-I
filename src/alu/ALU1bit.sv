@@ -1,10 +1,10 @@
-module ALU1bit(result, carryout0, carryout1, a, b, carryin0, carryin1, control);
+module ALU1bit(carryout0, carryout1, a, b, carryin0, carryin1, andout, orout, xorout, addout, subout, passbout);
 	input a, b, carryin0, carryin1;
-	input [2:0] control;
-	output result, carryout0, carryout1;
+	output carryout0, carryout1;
+	output andout, orout, xorout, addout, subout, passbout;
 	
 	wire bnot;
-	wire andout, orout, xorout, addout, subout;
+	
 	
 	and andGate (andout, a, b);
 	or orGate (orout, a, b);
@@ -13,28 +13,22 @@ module ALU1bit(result, carryout0, carryout1, a, b, carryin0, carryin1, control);
 	// filp and plus 1
 	not bNotGate (bnot, b);
 	adder substract (.carryout(carryout1), .sum(subout), .carryin(carryin1), .a, .b(bnot));
-	
-	logic [7:0] w;
-	mux8_1 mux0 (.out(result), .w({1'bz, xorout, orout, andout, subout, 
-		addout, 1'bz, b}), .sel(control));
+	assign passbout = b;
+
 endmodule 
 
 module ALU1bit_testbench;
 	logic a, b, carryin0, carryin1; // input
-	logic [2:0] control; // input
-	logic result, carryout0, carryout1; // output 
+	logic carryout0, carryout1; // output 
+	logic andout, orout, xorout, addout, subout, passbout;
 	
-	ALU1bit dut (result, carryout0, carryout1, a, b, carryin0, carryin1, control);	
-	
+	ALU1bit dut (carryout0, carryout1, a, b, carryin0, carryin1, andout, orout, xorout, addout, subout, passbout);
+
+	integer i;
 	initial begin
-		integer i, j;
-		{carryin0, carryin1} = 1; #50;
+		{carryin0, carryin1} = 1;
 		for (i = 0; i < 4; i++) begin
-			{a, b} = i; 
-			for (j = 0; j < 8; j++) begin
-				control = j; #10;
-			end
-			control = 3'b0;
-		end
+			{a, b} = i; #10;
+		end 
 	end 
 endmodule 

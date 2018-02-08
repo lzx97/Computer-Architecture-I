@@ -5,16 +5,17 @@ vlib work
 #     All Verilog files that are part of this design should have
 #     their own "vlog" line below.
 vlog "./src/common/*.sv"
+vlog "./src/alu/*.sv"
 
 # Call vsim to invoke simulator
 #     Make sure the last item on the line is the name of the
 #     testbench module you want to execute.
-vsim -voptargs="+acc" -t 1ps -lib work mux64x8_1_testbench;
+vsim -voptargs="+acc" -t 1ps -lib work ALU1bit_testbench;
 
 # Source the wave do file
 #     This should be the file that sets up the signal window for
 #     the module you are testing.
-do "./wave_files/mux64x8_1_wave.do"
+do "./wave_files/ALU1bit_wave.do"
 
 # Set the window types
 view wave
