@@ -11,7 +11,7 @@ module signextend(instr, result);
 
         // D-type
         else if (instr[31:21] == 11'b11111000010 || instr[31:21]== 11'b11111000000) begin // LDUR and STUR
-            result = {{55{instr[20]}}, instru[20:12]};
+            result = {{55{instr[20]}}, instr[20:12]};
         end 
 
         // CB-type
