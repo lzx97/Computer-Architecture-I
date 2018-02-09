@@ -1,156 +1,179 @@
-module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, opcode);
+module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, ShiftDir, opcode);
     input [10:0] opcode;
-    output Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite;
+    output Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir;
     output [2:0] ALUOp;
 
-    
+    parameter   ADDI = 11'b1001000100x,
+                ADDS = 11'b10101011000,
+                B    = 11'b000101xxxxx,
+                BLT  = 11'b01010100xxx,
+                CBZ  = 11'b10110100xxx,
+                LDUR = 11'b11111000010,
+                LSL  = 11'b11010011011,
+                LSR  = 11'b11010011010,
+                MUL  = 11'b10011011000,
+                STUR = 11'b11111000000,
+                SUBS = 11'b11101011000;
+
+
     always_comb begin
+        case (opcode)
+            ADDI: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'b0;
+                ALUOp    =  3'b010;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b1;
+                RegWrite =  1'b1;
+                ShiftDir =  1'bx;
+            end
 
-        /* ADDI I-type */
-        if (opcode[10:1] == 10'b1001000100) begin
-            Reg2Loc =   1'bx;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'b0;
-            ALUOp =     3'b010;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b1;
-            RegWrite =  1'b1;
-        end
+            ADDS: begin
+                Reg2Loc  =  1'b0;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'b0;
+                ALUOp    =  3'b010;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b0;
+                RegWrite =  1'b1;
+                ShiftDir =  1'bx;
+            end
 
-        /* ADDS R-type*/
-        else if (opcode == 11'b10101011000) begin
-            Reg2Loc =   1'b0;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'b0;
-            ALUOp =     3'b010;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b0;
-            RegWrite =  1'b1;
-        end
+            B: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'b1;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'bx;
+                ALUOp    =  3'bx;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'bx;
+                RegWrite =  1'b0;
+                ShiftDir =  1'bx;
+            end
 
-        /* B B-type*/
-        else if (opcode[10:5] == 6'b000101) begin
-            Reg2Loc =   1'bx;
-            UBranch =   1'b1;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'bx;
-            ALUOp =     3'bx;
-            MemWrite =  1'b0;
-            ALUsrc =    1'bx;
-            RegWrite =  1'b0;
-        end
+            BLT: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'b0;
+                Branch   =  1'b1;
+                MemRead  =  1'b0;
+                MemtoReg =  1'bx;
+                ALUOp    =  3'bx;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'bx;
+                RegWrite =  1'b0;
+                ShiftDir =  1'bx;
+            end
 
-        /* B.LT */
-        else if (opcode[10:3] == 8'b01010100) begin
-            Reg2Loc =   1'bx;
-            UBranch =   1'b0;
-            Branch =    1'b1;
-            MemRead =   1'b0;
-            MemtoReg =  1'bx;
-            ALUOp =     3'bx;
-            MemWrite =  1'b0;
-            ALUsrc =    1'bx;
-            RegWrite =  1'b0;
-        end
+            CBZ: begin
+                Reg2Loc  =  1'b1;
+                UBranch  =  1'b0;
+                Branch   =  1'b1;
+                MemRead  =  1'b0;
+                MemtoReg =  1'bx;
+                ALUOp    =  3'b000;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b0;
+                RegWrite =  1'b0;
+                ShiftDir =  1'bx;
+            end
 
-        /* CBZ CB-type*/
-        else if (opcode[10:3] == 8'b10110100) begin
-            Reg2Loc =   1'b1;
-            UBranch =   1'b0;
-            Branch =    1'b1;
-            MemRead =   1'b0;
-            MemtoReg =  1'bx;
-            ALUOp =     3'bx;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b0;
-            RegWrite =  1'b0;
-        end
+            LDUR: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b1;
+                MemtoReg =  1'b1;
+                ALUOp    =  3'b010;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b1;
+                RegWrite =  1'b1;
+                ShiftDir =  1'bx;
+            end
 
-        /* LDUR D-type*/
-        else if (opcode == 11'b11111000010) begin
-            Reg2Loc =   1'bx;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b1;
-            MemtoReg =  1'b1;
-            ALUOp =     3'b010;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b1;
-            RegWrite =  1'b1;
-        end
+            LSL: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'b0;
+                ALUOp    =  3'b001;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b1;
+                RegWrite =  1'b1;
+                ShiftDir =  1'b0;
+            end
 
-        /* LSL R-type */
-        else if (opcode == 11'b11010011011) begin
-            /* TODO: implement shift */
-            Reg2Loc =   1'bx;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'b0;
-            ALUOp =     3'b010;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b1;
-            RegWrite =  1'b1;
-        end
+            LSR: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'b0;
+                ALUOp    =  3'b001;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b1;
+                RegWrite =  1'b1;
+                ShiftDir =  1'b1;
+            end
 
-        /* LSR R-type */
-        else if (opcode == 11'b11010011010) begin
-            /* TODO: implement shift */
-            Reg2Loc =   1'bx;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'b0;
-            ALUOp =     3'b010;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b1;
-            RegWrite =  1'b1;
-        end
+            MUL: begin
+                Reg2Loc  =  1'b0;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'b0;
+                ALUOp    =  3'b111;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b0;
+                RegWrite =  1'b1;
+                ShiftDir =  1'bx;
+            end
 
-        /* MUL R-type */
-        else if (opcode == 11'b0) begin
-            /* TODO: implement multuplicaiton */
-            Reg2Loc =   1'bx;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'b0;
-            ALUOp =     3'b010;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b1;
-            RegWrite =  1'b1;
-        end
+            STUR: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'bx;
+                ALUOp    =  3'b010;
+                MemWrite =  1'b1;
+                ALUsrc   =  1'b1;
+                RegWrite =  1'b0;
+                ShiftDir =  1'bx;
+            end
 
-        /* STUR D-type */
-        else if (opcode == 11'b11111000000) begin
-            Reg2Loc =   1'b1;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'b0;
-            ALUOp =     3'b010;
-            MemWrite =  1'b1;
-            ALUsrc =    1'b1;
-            RegWrite =  1'b0;
-        end
+            SUBS: begin
+                Reg2Loc  =  1'b0;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
+                MemtoReg =  1'b0;
+                ALUOp    =  3'b011;
+                MemWrite =  1'b0;
+                ALUsrc   =  1'b0;
+                RegWrite =  1'b1;
+                ShiftDir =  1'bx;
+            end
 
-        /* SUBS R-type */
-        else if (opcode == 11'b11101011000) begin
-            Reg2Loc =   1'b0;
-            UBranch =   1'b0;
-            Branch =    1'b0;
-            MemRead =   1'b0;
-            MemtoReg =  1'b0;
-            ALUOp =     3'b011;
-            MemWrite =  1'b0;
-            ALUsrc =    1'b0;
-            RegWrite =  1'b1;
-        end
+            default: begin
+                Reg2Loc  =  1'bx;
+                UBranch  =  1'bx;
+                Branch   =  1'bx;
+                MemRead  =  1'bx;
+                MemtoReg =  1'bx;
+                ALUOp    =  3'bx;
+                MemWrite =  1'bx;
+                ALUsrc   =  1'bx;
+                RegWrite =  1'bx;
+                ShiftDir =  1'bx;
+            end
+        endcase 
     end
     
 endmodule 
