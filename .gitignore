@@ -6,9 +6,9 @@
 *.qdf
 *.bat
 *.cdf
-db/*
-incremental_db/*
-output_files/*
+db/
+incremental_db/
+output_files/
 transcript
 *.vstf
 *.wlf
