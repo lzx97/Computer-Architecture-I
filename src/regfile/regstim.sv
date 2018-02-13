@@ -9,13 +9,14 @@ module regstim;
 	logic [63:0]	WriteData;
 	logic 			RegWrite, clk;
 	logic [63:0]	ReadData1, ReadData2;
+	logic [31:0] [63:0] reg_out;
 
 	integer i;
 
 	// Your register file MUST be named "regfile".
 	// Also you must make sure that the port declarations
 	// match up with the module instance in this stimulus file.
-	regfile dut (.ReadData1, .ReadData2, .WriteData, 
+	regfile dut (.ReadData1, .ReadData2, .reg_out, .WriteData, 
 					 .ReadRegister1, .ReadRegister2, .WriteRegister,
 					 .RegWrite, .clk);
 

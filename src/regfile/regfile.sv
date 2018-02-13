@@ -1,11 +1,11 @@
-module regfile(ReadData1, ReadData2, WriteData, ReadRegister1, ReadRegister2, WriteRegister, RegWrite, clk);
+module regfile(ReadData1, ReadData2, reg_out, WriteData, ReadRegister1, ReadRegister2, WriteRegister, RegWrite, clk);
 	input [4:0] ReadRegister1, ReadRegister2, WriteRegister;
 	input [63:0] WriteData;
 	input RegWrite, clk;
 	output [63:0] ReadData1, ReadData2;
+	output [31:0] [63:0] reg_out;
 	
 	wire [31:0] decoder_out;
-	wire [31:0] [63:0] reg_out;
 	
 	// XZR register (always 0)
 	reg [63:0] reg31 = 64'b0;
