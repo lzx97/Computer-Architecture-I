@@ -18,11 +18,11 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
     // wire [63:0] muxaluout, muxmemout, muxbranchout;
 
     // wire from control unit
-    wire Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir;
+    wire Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn;
     wire [2:0] ALUOp;
 
     // flags from alu
-    wire negative, zero, overflow, carry_out;
+    wire negative_o, zero_o, overflow_o, carry_out_o;
 
     // Branch wires
     wire cbzandout, bltandout, xorout, ucborout;
@@ -65,6 +65,7 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
                          .ALUsrc, 
                          .RegWrite, 
                          .ShiftDir, 
+						 .FlagEn,
                          .opcode(instr[31:21])
     );
 
@@ -76,12 +77,19 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
                     .B(muxaluout), 
                     .cntrl(ALUOp), 
                     .result(aluout), 
-                    .negative, 
-                    .zero, 
-                    .overflow, 
-                    .carry_out, 
+                    .negative(negative_o), 
+                    .zero(zero_o), 
+                    .overflow(overflow_o), 
+                    .carry_out(carry_out_o), 
                     .shiftdir(ShiftDir)
     );
+	
+	flagReg	fr (	.flag_out({negative, zero, overflow, carry_out}), 
+					.flag_in({negative_o, zero_o, overflow_o, carry_out_o}), 
+					.enable(FlagEn), 
+					.clk, 
+					.rst
+	); 
 
     datamem dm (    .address(aluout),
 	                .write_enable(MemWrite),
