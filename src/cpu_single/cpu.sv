@@ -1,7 +1,7 @@
 `timescale 1ns/10ps
 
 module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1, ReadData2, memout, 
-                muxaluout, muxmemout, muxbranchout, muxreg2out, negative, zero, overflow, carry_out);
+                muxaluout, muxmemout, muxbranchout, muxreg2out, negative, zero, overflow, carry_out, bltandout, xorout, ucborout, UBranch, Branch, muxbrsel);
     input clk, rst;
     output [31:0][63:0] reg_out;
     output [63:0] pc_out, adder0out, seout, aluout, ReadData1, ReadData2, memout;
@@ -9,6 +9,7 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
     output [63:0] muxaluout, muxmemout, muxbranchout;
     output [4:0] muxreg2out;
     output negative, zero, overflow, carry_out;
+	output bltandout, xorout, ucborout, UBranch, Branch, muxbrsel;
 
     //wire [63:0] pc_out seout, aluout, ReadData1, ReadData2, memout;
     //wire [31:0] instr;
@@ -18,14 +19,14 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
     // wire [63:0] muxaluout, muxmemout, muxbranchout;
 
     // wire from control unit
-    wire Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn;
+    wire Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel;
     wire [2:0] ALUOp;
 
     // flags from alu
     wire negative_o, zero_o, overflow_o, carry_out_o;
 
     // Branch wires
-    wire cbzandout, bltandout, xorout, ucborout;
+    wire cbzandout, bltandout, xorout, ucborout, muxbrsel;
 
     wire [63:0] adder1out;
     wire [63:0] sl2out;
@@ -66,6 +67,7 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
                          .RegWrite, 
                          .ShiftDir, 
 						 .FlagEn,
+						 .Brsel,
                          .opcode(instr[31:21])
     );
 
@@ -107,8 +109,10 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
     
     xor bltxor (xorout, negative, overflow);
     and bltand (bltandout, Branch, xorout);
-
-    or ucdor (ucborout, cbzandout, bltandout, UBranch);
+	
+	mux2_1 brselmux (.out(muxbrsel), .w0(cbzandout), .w1(bltandout), .sel(Brsel));
+	
+    or ucdor (ucborout, muxbrsel, UBranch);
 
 
     alu adder0 (    .A(pc_out), 
@@ -150,8 +154,10 @@ module cpu_testbench;
     logic [63:0] muxaluout, muxmemout, muxbranchout;
     logic [4:0] muxreg2out;
     logic negative, zero, overflow, carry_out;
+	logic bltandout, xorout, ucborout, UBranch, Branch, muxbrsel;
 
-    cpu dut (reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1, ReadData2, memout, muxaluout, muxmemout, muxbranchout, muxreg2out, negative, zero, overflow, carry_out);
+    cpu dut (reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1, ReadData2, memout, muxaluout, muxmemout, 
+		muxbranchout, muxreg2out, negative, zero, overflow, carry_out, bltandout, xorout, ucborout, UBranch, Branch, muxbrsel);
 
     initial begin // Set up the clock
 		clk <= 0;

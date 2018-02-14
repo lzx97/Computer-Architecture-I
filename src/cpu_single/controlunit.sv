@@ -1,6 +1,6 @@
-module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, opcode);
+module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel, opcode);
     input [10:0] opcode;
-    output logic Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn;
+    output logic Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel;
     output logic [2:0] ALUOp;
 
     parameter   ADDI = 11'b1001000100x,
@@ -30,6 +30,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b1;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
+				Brsel    =  1'bx;
             end
 
             ADDS: begin
@@ -44,6 +45,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b1;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b1;
+				Brsel    =  1'bx;
             end
 
             B: begin
@@ -58,6 +60,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b0;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
+				Brsel    =  1'bx;
             end
 
             BLT: begin
@@ -72,6 +75,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b0;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
+				Brsel    =  1'b1;
             end
 
             CBZ: begin
@@ -86,6 +90,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b0;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
+				Brsel    =  1'b0;
             end
 
             LDUR: begin
@@ -100,6 +105,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b1;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
+				Brsel    =  1'bx;
             end
 
             LSL: begin
@@ -114,6 +120,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b1;
                 ShiftDir =  1'b0;
 				FlagEn   =  1'b0;
+				Brsel    =  1'bx;
             end
 
             LSR: begin
@@ -128,6 +135,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b1;
                 ShiftDir =  1'b1;
 				FlagEn   =  1'b0;
+				Brsel    =  1'bx;
             end
 
             MUL: begin
@@ -142,6 +150,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b1;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
+				Brsel    =  1'bx;
             end
 
             STUR: begin
@@ -156,6 +165,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b0;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
+				Brsel    =  1'bx;
             end
 
             SUBS: begin
@@ -170,6 +180,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'b1;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b1;
+				Brsel    =  1'bx;
             end
 
             default: begin
@@ -184,6 +195,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 RegWrite =  1'bx;
                 ShiftDir =  1'bx;
 				FlagEn   =  1'bx;
+				Brsel    =  1'bx;
             end
         endcase
     end
