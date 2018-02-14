@@ -4,7 +4,7 @@ module cpu(reg_out, clk, rst);
     input clk, rst;
     output [31:0][63:0] reg_out;
 
-    wire [63:0] pc_out, ReadData1, ReadData2, seout, aluout, memout;
+    wire [63:0] pc_out, seout, aluout, ReadData1, ReadData2, memout;
     wire [31:0] instr;
 
     // wire of muxes
@@ -127,7 +127,7 @@ endmodule
 
 module cpu_testbench;
 
-    parameter ClockDelay = 500000000;
+    parameter ClockDelay = 500000;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
