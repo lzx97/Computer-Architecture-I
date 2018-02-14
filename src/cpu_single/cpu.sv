@@ -77,7 +77,7 @@ module cpu(reg_out, clk, rst);
                     .shiftdir(ShiftDir)
     );
 
-    datamem dm (       .address(aluout),
+    datamem dm (    .address(aluout),
 	                .write_enable(MemWrite),
 	                .read_enable(MemRead),
 	                .write_data(ReadData2),
@@ -141,8 +141,6 @@ module cpu_testbench;
 
     initial begin
         rst = 1; @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
 
         rst = 0;
         @(posedge clk);
