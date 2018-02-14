@@ -1,10 +1,11 @@
 `timescale 1ns/10ps
 
-module cpu(reg_out, clk, rst);
+module cpu(reg_out, clk, rst, pc_out, adder0out);
     input clk, rst;
     output [31:0][63:0] reg_out;
+    output [63:0] pc_out, adder0out;
 
-    wire [63:0] pc_out, seout, aluout, ReadData1, ReadData2, memout;
+    wire [63:0] seout, aluout, ReadData1, ReadData2, memout;
     wire [31:0] instr;
 
     // wire of muxes
@@ -21,7 +22,7 @@ module cpu(reg_out, clk, rst);
     // Branch wires
     wire cbzandout, bltandout, xorout, ucborout;
 
-    wire [63:0] adder0out, adder1out;
+    wire [63:0] adder1out;
     wire [63:0] sl2out;
 
     pc programcounter ( .addr_out(pc_out), 
@@ -98,7 +99,7 @@ module cpu(reg_out, clk, rst);
 
 
     alu adder0 (    .A(pc_out), 
-                    .B(4), 
+                    .B(64'h4), 
                     .cntrl(3'b010), 
                     .result(adder0out), 
                     .negative(), 
@@ -131,8 +132,9 @@ module cpu_testbench;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
+    logic [63:0] pc_out, adder0out;
 
-    cpu dut (reg_out, clk, rst);
+    cpu dut (reg_out, clk, rst, pc_out, adder0out);
 
     initial begin // Set up the clock
 		clk <= 0;
