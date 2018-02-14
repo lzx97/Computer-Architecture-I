@@ -26,7 +26,8 @@ module signextend(instr, result);
 
         // I-type
         else if (instr[31:22] == 10'b1001000100) begin // ADDI
-            result = {{52{instr[21]}}, instr[21:10]};
+            //result = {{52{instr[21]}}, instr[21:10]};
+			result = {{52{1'b0}}, instr[21:10]};
         end
         
     end

@@ -136,7 +136,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
             end
 
             STUR: begin
-                Reg2Loc  =  1'bx;
+                Reg2Loc  =  1'b1;
                 UBranch  =  1'b0;
                 Branch   =  1'b0;
                 MemRead  =  1'b0;
