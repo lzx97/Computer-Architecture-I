@@ -1,16 +1,21 @@
 `timescale 1ns/10ps
 
-module cpu(reg_out, clk, rst, pc_out, adder0out);
+module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1, ReadData2, memout, 
+                muxaluout, muxmemout, muxbranchout, muxreg2out, negative, zero, overflow, carry_out);
     input clk, rst;
     output [31:0][63:0] reg_out;
-    output [63:0] pc_out, adder0out;
+    output [63:0] pc_out, adder0out, seout, aluout, ReadData1, ReadData2, memout;
+    output [31:0] instr;
+    output [63:0] muxaluout, muxmemout, muxbranchout;
+    output [4:0] muxreg2out;
+    output negative, zero, overflow, carry_out;
 
-    wire [63:0] seout, aluout, ReadData1, ReadData2, memout;
-    wire [31:0] instr;
+    //wire [63:0] pc_out seout, aluout, ReadData1, ReadData2, memout;
+    //wire [31:0] instr;
 
     // wire of muxes
-    wire [4:0] muxreg2out;
-    wire [63:0] muxaluout, muxmemout, muxbranchout;
+    // wire [4:0] muxreg2out;
+    // wire [63:0] muxaluout, muxmemout, muxbranchout;
 
     // wire from control unit
     wire Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir;
@@ -42,11 +47,11 @@ module cpu(reg_out, clk, rst, pc_out, adder0out);
     regfile rf (        .ReadData1, 
                         .ReadData2, 
                         .reg_out, 
-                        .WriteData(), 
+                        .WriteData(muxmemout), 
                         .ReadRegister1(instr[9:5]), 
                         .ReadRegister2(muxreg2out), 
                         .WriteRegister(instr[4:0]), 
-                        .RegWrite(RegWrite), //To be
+                        .RegWrite(RegWrite),
                         .clk
     );
 
@@ -128,30 +133,31 @@ endmodule
 
 module cpu_testbench;
 
-    parameter ClockDelay = 500000;
+    parameter ClockDelay = 5000;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
-    logic [63:0] pc_out, adder0out;
+    logic [63:0] pc_out, adder0out, seout, aluout, ReadData1, ReadData2, memout;
+    logic [31:0] instr;
+    logic [63:0] muxaluout, muxmemout, muxbranchout;
+    logic [4:0] muxreg2out;
+    logic negative, zero, overflow, carry_out;
 
-    cpu dut (reg_out, clk, rst, pc_out, adder0out);
+    cpu dut (reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1, ReadData2, memout, muxaluout, muxmemout, muxbranchout, muxreg2out, negative, zero, overflow, carry_out);
 
     initial begin // Set up the clock
 		clk <= 0;
 		forever #(ClockDelay/2) clk <= ~clk;
 	end
 
+    integer i;
     initial begin
         rst = 1; @(posedge clk);
 
         rst = 0;
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
-        @(posedge clk);
+        for (i = 0; i < 30; i++) begin
+            @(posedge clk);
+        end
         $stop;
     end
 endmodule 
