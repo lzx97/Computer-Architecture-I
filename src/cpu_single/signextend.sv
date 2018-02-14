@@ -5,9 +5,16 @@ module signextend(instr, result);
     always_comb begin
         
         // R-type
-        if (instr[31:21] == 11'b1xx0101x000) begin
-            result = {{58{instr[15]}}, instr[15:10]};
-        end
+        //if (instr[31:21] == 11'b1xx0101x000) begin
+            // result = {{58{instr[15]}}, instr[15:10]};
+			//result = {{58{1'b0}}, instr[15:10]};
+        //end
+		
+		if (instr[31:21] == 11'b11010011011 || instr[31:21] == 11'b11010011010 || // LSL || LSR ||
+			instr[31:21] == 11'b10011011000 || instr[31:21] == 11'b10101011000 || // MUL || ADDS
+			instr[31:21] == 11'b11101011000) begin // SUBS
+			result = {{58{1'b0}}, instr[15:10]};
+		end 
 
         // D-type
         else if (instr[31:21] == 11'b11111000010 || instr[31:21]== 11'b11111000000) begin // LDUR and STUR
