@@ -88,7 +88,7 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
 	                .read_enable(MemRead),
 	                .write_data(ReadData2),
 	                .clk,
-	                .xfer_size(4'b0),
+	                .xfer_size(4'd8),
 	                .read_data(memout)
 	);
 
