@@ -1,3 +1,5 @@
+`timescale 1ns/10ps
+
 module cpu(reg_out, clk, rst);
     input clk, rst;
     output [31:0][63:0] reg_out;
@@ -6,7 +8,8 @@ module cpu(reg_out, clk, rst);
     wire [31:0] instr;
 
     // wire of muxes
-    wire muxreg2out, muxaluout, muxmemout, muxbranchout;
+    wire [4:0] muxreg2out;
+    wire [63:0] muxaluout, muxmemout, muxbranchout;
 
     // wire from control unit
     wire Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir;
@@ -18,8 +21,8 @@ module cpu(reg_out, clk, rst);
     // Branch wires
     wire cbzandout, bltandout, xorout, ucborout;
 
-    wire adder0out, adder1out;
-    wire sl2out;
+    wire [63:0] adder0out, adder1out;
+    wire [63:0] sl2out;
 
     pc programcounter ( .addr_out(pc_out), 
                         .addr_in(muxbranchout), 
@@ -33,7 +36,7 @@ module cpu(reg_out, clk, rst);
                         .clk
     );
 
-    mux2_1 reg2 (.out(muxreg2out), .w0(instr[20:16]), .w1(instr[4:0]), .sel(Reg2Loc));
+    mux5x2_1 reg2 (.out(muxreg2out), .w0(instr[20:16]), .w1(instr[4:0]), .sel(Reg2Loc));
 
     regfile rf (        .ReadData1, 
                         .ReadData2, 
@@ -61,7 +64,7 @@ module cpu(reg_out, clk, rst);
 
     signextend se (.instr, .result(seout));
 
-    mux2_1 alumux (.out(muxaluout), .w0(ReadData2), .w1(seout), .sel(ALUsrc));
+    mux64x2_1 alumux (.out(muxaluout), .w0(ReadData2), .w1(seout), .sel(ALUsrc));
 
     alu aluuu (     .A(ReadData1), 
                     .B(muxaluout), 
@@ -74,16 +77,16 @@ module cpu(reg_out, clk, rst);
                     .shiftdir(ShiftDir)
     );
 
-    datamem (       .address(aluout),
+    datamem dm (       .address(aluout),
 	                .write_enable(MemWrite),
 	                .read_enable(MemRead),
 	                .write_data(ReadData2),
 	                .clk,
-	                .xfer_size(3'b0),
+	                .xfer_size(4'b0),
 	                .read_data(memout)
 	);
 
-    mux2_1 memmux (.out(muxmemout), .w0(aluout), .w1(memout), .sel(MemtoReg));
+    mux64x2_1 memmux (.out(muxmemout), .w0(aluout), .w1(memout), .sel(MemtoReg));
 
     // Branch control 
     and cbzand (cbzandout, Branch, zero);
@@ -95,7 +98,7 @@ module cpu(reg_out, clk, rst);
 
 
     alu adder0 (    .A(pc_out), 
-                    .b(4), 
+                    .B(4), 
                     .cntrl(3'b010), 
                     .result(adder0out), 
                     .negative(), 
@@ -108,7 +111,7 @@ module cpu(reg_out, clk, rst);
     shiftleft2 sl2 (.out(sl2out), .in(seout));
 
     alu adder1 (    .A(pc_out), 
-                    .b(sl2out), 
+                    .B(sl2out), 
                     .cntrl(3'b010), 
                     .result(adder1out), 
                     .negative(), 
@@ -118,6 +121,37 @@ module cpu(reg_out, clk, rst);
                     .shiftdir(1'bx)
     );
 
-    mux2_1 branchmux (.out(muxbranchout), .w0(adder0out), .w1(adder1out), .sel(ucborout));
+    mux64x2_1 branchmux (.out(muxbranchout), .w0(adder0out), .w1(adder1out), .sel(ucborout));
 
+endmodule 
+
+module cpu_testbench;
+
+    parameter ClockDelay = 500000000;
+
+    logic clk, rst;
+    logic [31:0][63:0] reg_out;
+
+    cpu dut (reg_out, clk, rst);
+
+    initial begin // Set up the clock
+		clk <= 0;
+		forever #(ClockDelay/2) clk <= ~clk;
+	end
+
+    initial begin
+        rst = 1; @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+
+        rst = 0;
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        $stop;
+    end
 endmodule 

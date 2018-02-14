@@ -1,6 +1,6 @@
 module signextend(instr, result);
     input [31:0] instr;
-    output [63:0] result;
+    output logic [63:0] result;
 
     always_comb begin
         
