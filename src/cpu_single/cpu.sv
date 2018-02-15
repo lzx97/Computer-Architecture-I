@@ -105,7 +105,7 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
     mux64x2_1 memmux (.out(muxmemout), .w0(aluout), .w1(memout), .sel(MemtoReg));
 
     // Branch control 
-    and cbzand (cbzandout, Branch, zero);
+    and cbzand (cbzandout, Branch, zero_o);
     
     xor bltxor (xorout, negative, overflow);
     and bltand (bltandout, Branch, xorout);
@@ -145,7 +145,7 @@ endmodule
 
 module cpu_testbench;
 
-    parameter ClockDelay = 5000;
+    parameter ClockDelay = 500000;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
@@ -169,7 +169,7 @@ module cpu_testbench;
         rst = 1; @(posedge clk);
 
         rst = 0;
-        for (i = 0; i < 30; i++) begin
+        for (i = 0; i < 2000; i++) begin
             @(posedge clk);
         end
         $stop;
