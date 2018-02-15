@@ -141,7 +141,7 @@ endmodule
 
 module cpu_testbench;
 
-    parameter ClockDelay = 500000;
+    parameter ClockDelay = 5000;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
