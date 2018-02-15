@@ -1,22 +1,18 @@
 `timescale 1ns/10ps
 
-module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1, ReadData2, memout, 
-                muxaluout, muxmemout, muxbranchout, muxreg2out, negative, zero, overflow, carry_out, bltandout, xorout, ucborout, UBranch, Branch, muxbrsel);
+module cpu(reg_out, negative, zero, overflow, carry_out, clk, rst);
     input clk, rst;
     output [31:0][63:0] reg_out;
-    output [63:0] pc_out, adder0out, seout, aluout, ReadData1, ReadData2, memout;
-    output [31:0] instr;
-    output [63:0] muxaluout, muxmemout, muxbranchout;
-    output [4:0] muxreg2out;
-    output negative, zero, overflow, carry_out;
-	output bltandout, xorout, ucborout, UBranch, Branch, muxbrsel;
+	output negative, zero, overflow, carry_out;
+	
+	
 
-    //wire [63:0] pc_out seout, aluout, ReadData1, ReadData2, memout;
-    //wire [31:0] instr;
+    wire [63:0] pc_out, seout, aluout, ReadData1, ReadData2, memout;
+    wire [31:0] instr;
 
     // wire of muxes
-    // wire [4:0] muxreg2out;
-    // wire [63:0] muxaluout, muxmemout, muxbranchout;
+    wire [4:0] muxreg2out;
+    wire [63:0] muxaluout, muxmemout, muxbranchout;
 
     // wire from control unit
     wire Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel;
@@ -28,7 +24,7 @@ module cpu(reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1
     // Branch wires
     wire cbzandout, bltandout, xorout, ucborout, muxbrsel;
 
-    wire [63:0] adder1out;
+    wire [63:0] adder0out, adder1out;
     wire [63:0] sl2out;
 
     pc programcounter ( .addr_out(pc_out), 
@@ -149,15 +145,9 @@ module cpu_testbench;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
-    logic [63:0] pc_out, adder0out, seout, aluout, ReadData1, ReadData2, memout;
-    logic [31:0] instr;
-    logic [63:0] muxaluout, muxmemout, muxbranchout;
-    logic [4:0] muxreg2out;
-    logic negative, zero, overflow, carry_out;
-	logic bltandout, xorout, ucborout, UBranch, Branch, muxbrsel;
+	logic negative, zero, overflow, carry_out;
 
-    cpu dut (reg_out, clk, rst, pc_out, adder0out, instr, seout, aluout, ReadData1, ReadData2, memout, muxaluout, muxmemout, 
-		muxbranchout, muxreg2out, negative, zero, overflow, carry_out, bltandout, xorout, ucborout, UBranch, Branch, muxbrsel);
+    cpu dut (reg_out, negative, zero, overflow, carry_out, clk, rst);
 
     initial begin // Set up the clock
 		clk <= 0;
