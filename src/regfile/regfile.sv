@@ -7,7 +7,7 @@ module regfile(ReadData1, ReadData2, reg_out, WriteData, ReadRegister1, ReadRegi
 	
 	wire [31:0] decoder_out;
 	
-	// XZR register (always 0)
+	// register X31 (always 0)
 	reg [63:0] reg31 = 64'b0;
 	assign reg_out[31] = reg31;
 	
@@ -22,7 +22,7 @@ module regfile(ReadData1, ReadData2, reg_out, WriteData, ReadRegister1, ReadRegi
 		end
 	endgenerate
 	
-	// initialize two 64x32:1 mutiplexers
+	// Select outputs for ReadData1 and ReadData2
 	mux64x32_1 mux1 (.out(ReadData1), .data_in(reg_out), .sel(ReadRegister1));
 	mux64x32_1 mux2 (.out(ReadData2), .data_in(reg_out), .sel(ReadRegister2));
 endmodule 

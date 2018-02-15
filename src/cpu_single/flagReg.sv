@@ -1,3 +1,5 @@
+/* 4-bit 'register' to help set flag for the CPU */ 
+
 module flagReg(flag_out, flag_in, enable, clk, rst); 
 	input [3:0] flag_in;
 	input enable, clk, rst;

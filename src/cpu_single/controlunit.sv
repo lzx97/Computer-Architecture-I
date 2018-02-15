@@ -1,3 +1,5 @@
+/* CPU control unit */
+
 module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel, opcode);
     input [10:0] opcode;
     output logic Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel;
@@ -29,8 +31,8 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ALUsrc   =  1'b1;
                 RegWrite =  1'b1;
                 ShiftDir =  1'bx;
-				FlagEn   =  1'b0;
-				Brsel    =  1'bx;
+				FlagEn   =  1'b0; // set flags 
+				Brsel    =  1'bx; // select CBZ or BLT
             end
 
             ADDS: begin

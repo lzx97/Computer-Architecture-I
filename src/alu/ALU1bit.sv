@@ -1,3 +1,5 @@
+/* 1-bit ALU with pass_b, add, substract, and, or, xor functions */ 
+
 module ALU1bit(carryout0, carryout1, a, b, carryin0, carryin1, andout, orout, xorout, addout, subout, passbout);
 	input a, b, carryin0, carryin1;
 	output carryout0, carryout1;

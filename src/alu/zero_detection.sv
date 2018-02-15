@@ -1,3 +1,5 @@
+/* A zero detection unit to help set zero flag of the ALU */ 
+
 module zero_detection(zero, in);
 	input [63:0] in;
 	output zero;

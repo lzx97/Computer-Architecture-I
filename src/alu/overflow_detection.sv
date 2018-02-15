@@ -1,3 +1,5 @@
+/* An overflow detection unit to help set overflow flag for the ALU */ 
+
 module overflow_detection(overflow, a, b, c, cntrl);
 	input a, b, c, cntrl;
 	output overflow;

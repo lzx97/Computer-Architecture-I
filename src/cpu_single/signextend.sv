@@ -1,3 +1,6 @@
+/* sign extend addr/imm field of instruction based on instrction type 
+ * output 64-bit result */
+
 module signextend(instr, result);
     input [31:0] instr;
     output logic [63:0] result;

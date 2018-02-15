@@ -1,3 +1,5 @@
+/* A 64-bit register with write_enable */ 
+
 module register(data_out, data_in, enable, clk, rst);
 	input enable, clk, rst;
 	input [63:0] data_in;

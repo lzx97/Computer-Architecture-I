@@ -1,3 +1,5 @@
+/* output = in << 2 */ 
+
 module shiftleft2(out, in);
     input [63:0] in;
     output [63:0] out;

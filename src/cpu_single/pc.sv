@@ -1,3 +1,5 @@
+/* program counter of the cpu */ 
+
 module pc(addr_out, addr_in, enable, clk, rst);
     input [63:0] addr_in;
     input enable, clk, rst;

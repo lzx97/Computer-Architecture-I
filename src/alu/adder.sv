@@ -1,3 +1,5 @@
+/* A simple 1-bit full-adder */ 
+
 module adder (carryout, sum, carryin, a, b);
 	input carryin, a, b;
 	output carryout, sum;
@@ -5,6 +7,7 @@ module adder (carryout, sum, carryin, a, b);
 	wire anot, bnot, cinot;
 	wire and0out, and1out, and2out, and3out;
 	
+	// gate level implementation
 	not (anot, a);
 	not (bnot, b);
 	not (cinot, carryin);
