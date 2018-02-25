@@ -38,10 +38,12 @@ module ID_EX(RD1_out, RD2_out, Rn_out, Rm_out, Rd_out, cntrl_EX_out, cntrl_M_out
 			regester11bit EXs (.data_out(cntrl_EX_out[i]), .data_in(cntrl_EX[i]), .enable, .clk, .rst);
 		end 
 		
+		// cntrl_M
 		for (i = 0; i < 2; i++) begin :eachM
 			regester11bit Ms (.data_out(cntrl_M_out[i]), .data_in(cntrl_M[i]), .enable, .clk, .rst);
 		end 
 		
+		// cntrl_WB
 		regester11bit WB (.data_out(cntrl_WB), .data_in(cntrl_WB_out), .enable, .clk, .rst);
 	endgenerate 
 	
