@@ -18,7 +18,7 @@ module mux64x4_1_testbench;
 
     mux64x4_1 dut (.out, .w0, .w1, .w2, .w3, .sel);
     
-    integer i;
+    integer i; 
     initial begin
         #10;
         w0 = 0;
