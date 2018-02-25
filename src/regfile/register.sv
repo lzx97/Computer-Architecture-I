@@ -9,9 +9,8 @@ module register(data_out, data_in, enable, clk, rst);
 	
 	genvar i;
 	generate 
-		for (i = 0; i < 64; i++) begin : eachDFF
-			mux2_1 muxs (.out(load[i]), .w0(data_out[i]), .w1(data_in[i]), .sel(enable));
-			D_FF dn (.q(data_out[i]), .d(load[i]), .reset(rst), .clk(clk));
+		for (i = 0; i < 64; i++) begin : eachreg
+			regester11bit regs (.data_out(data_out[i]), .data_in(data_in[i]), .enable, .clk, .rst);
 		end
 	endgenerate 
-endmodule 
+endmodule 

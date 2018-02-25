@@ -8,11 +8,11 @@ module mux16_1(out, w, sel);
 	genvar i;
 	generate 
 		for (i = 0; i < 16; i += 4) begin : muxinit
-			mux4_1 muxs (.out(tempout[i/4]), .w0(w[i]), .w1(w[i+1]), .w2(w[i+2]), .w3(w[i+3]), .s0(sel[0]), .s1(sel[1]));
+			mux4_1 muxs (.out(tempout[i/4]), .w0(w[i]), .w1(w[i+1]), .w2(w[i+2]), .w3(w[i+3]), .sel(sel[1:0]));
 		end
 	endgenerate 
 	
-	mux4_1 muxtop (.out(out), .w0(tempout[0]), .w1(tempout[1]), .w2(tempout[2]), .w3(tempout[3]), .s0(sel[2]), .s1(sel[3]));
+	mux4_1 muxtop (.out(out), .w0(tempout[0]), .w1(tempout[1]), .w2(tempout[2]), .w3(tempout[3]), .sel(sel[3:2]));
 	
 endmodule
 

@@ -5,8 +5,8 @@ module mux8_1(out, w, sel);
 	
 	wire mux0out, mux1out;
 	
-	mux4_1 mux0 (.out(mux0out), .w0(w[0]), .w1(w[1]), .w2(w[2]), .w3(w[3]), .s0(sel[0]), .s1(sel[1]));
-	mux4_1 mux1 (.out(mux1out), .w0(w[4]), .w1(w[5]), .w2(w[6]), .w3(w[7]), .s0(sel[0]), .s1(sel[1]));
+	mux4_1 mux0 (.out(mux0out), .w0(w[0]), .w1(w[1]), .w2(w[2]), .w3(w[3]), .sel(sel[1:0]));
+	mux4_1 mux1 (.out(mux1out), .w0(w[4]), .w1(w[5]), .w2(w[6]), .w3(w[7]), .sel(sel[1:0]));
 	mux2_1 mux2 (.out, .w0(mux0out), .w1(mux1out), .sel(sel[2]));
 	
 endmodule 
