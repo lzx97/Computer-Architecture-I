@@ -1,4 +1,4 @@
-module IF_ID();
+module IF_ID(instr_out, instr, enable, clk, rst);
 	input [63:0] instr;
 	input enable, clk, rst;
 	output [63:0] instr_out;

@@ -2,8 +2,32 @@
 
 module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel, opcode);
     input [10:0] opcode;
-    output logic Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel;
-    output logic [2:0] ALUOp;
+    output reg Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel;
+    output reg [2:0] ALUOp;
+	
+	/* 
+		BEFORE EX:
+			Reg2Loc
+			UBranch
+			Branch
+			RegWrite
+		
+		EX: 
+			ALUOp
+			ALUsrc
+			ShiftDir
+			FlagEn
+			Brsel?
+		
+		M:
+			MemRead
+			MemWrite
+			
+		WB: 
+			MemtoReg
+	
+	
+	*/
 
     parameter   ADDI = 11'b1001000100x,
                 ADDS = 11'b10101011000,
