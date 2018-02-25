@@ -1,18 +1,19 @@
-module mux4_1 (out, w0, w1, w2, w3, s0, s1);
+module mux4_1 (out, w0, w1, w2, w3, sel);
 	input w0, w1, w2, w3;
-	input s0, s1;
+	//input s0, s1;
+	input [1:0] sel;
 	output out;
 	
 	wire s0not, s1not;
 	wire g0_o, g1_o, g2_o, g3_o;
 	
-	not inverter1 (s0not, s0);
-	not inverter2 (s1not, s1);
+	not inverter1 (s0not, sel[0]);
+	not inverter2 (s1not, sel[1]);
 	
 	and g0 (g0_o, w0, s0not, s1not);
-	and g1 (g1_o, w1, s1not, s0);
-	and g2 (g2_o, w2, s0not, s1);
-	and g3 (g3_o, w3, s0, s1);
+	and g1 (g1_o, w1, s1not, sel[0]);
+	and g2 (g2_o, w2, s0not, sel[1]);
+	and g3 (g3_o, w3, sel[0], sel[1]);
 	
 	or g4 (out, g0_o, g1_o, g2_o, g3_o);
 endmodule
