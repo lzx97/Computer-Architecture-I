@@ -1,11 +1,15 @@
 `timescale 1ns/10ps
 
-module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, ucborout);
+module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM,
+            RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out, ForwardA, ForwardB, aluout,
+            ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout);
     input clk, rst;
     output [31:0][63:0] reg_out;
-    output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM;
+    output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout;
+    output [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout;
     output [31:0] instr, instr_out;
-    output ucborout;
+    output [4:0] muxreg2out;
+    output [1:0] ForwardA, ForwardB;
 
 
     // EX stage variables
@@ -92,7 +96,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     mux5x2_1 reg2 (     .out(muxreg2out), 
                         .w0(instr_out[20:16]), 
                         .w1(instr_out[4:0]), 
-                        .sel(control[0]) // Reg2Loc
+                        .sel(instr_out[28]) // Reg2Loc
     );
 
     regfile rf (        .ReadData1, 
@@ -101,7 +105,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                         .WriteData(muxmemout), 
                         .ReadRegister1(instr_out[9:5]), 
                         .ReadRegister2(muxreg2out), 
-                        .WriteRegister(instr_out[4:0]), 
+                        .WriteRegister(Rd_MEM_WB), 
                         .RegWrite(WB_MEM_WB[1]), // RegWrite
                         .clk
     );
@@ -163,13 +167,14 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     wire [63:0] aluout, sl2out;
 
-    wire [63:0] forward1out, forward2out;
+    wire [63:0] forward1out, forward2out, muxaluout;
     wire [1:0] ForwardA, ForwardB;
     mux64x4_1 forwardmux1 (.out(forward1out), .w0(RD1_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardA)); 
     mux64x4_1 forwardmux2 (.out(forward2out), .w0(RD2_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardB)); 
 
-    alu thealu (     .A(forward1out), 
-                    .B(forward2out), 
+    mux64x2_1 alumux (.out(muxaluout), .w0(forward2out), .w1(se_ID_EX), .sel(EX_ID_EX[3]));
+    alu thealu (    .A(forward1out), 
+                    .B(muxaluout), 
                     .cntrl(EX_ID_EX[2:0]), // ALUOp
                     .result(aluout), 
                     .negative(negative_alu), 
@@ -198,18 +203,6 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                     .carry_out(), 
                     .shiftdir(1'bx)
     );
-
-    forwarding fwd (.ForwardA, 
-                    .ForwardB, 
-                    .Rn(Rn_ID_EX), 
-                    .Rm(Rm_ID_EX), 
-                    .Rd_EX_MEM(Rd_EX_MEM), 
-                    .Rd_MEM_WB(Rd_MEM_WB), 
-                    .EX_MEM_RegWrite(WB_EX_MEM[1]), 
-                    .MEM_WB_RegWrite(WB_MEM_WB[1])
-    );
-
-
 
     /* ---- EX stage ---- */
 
@@ -307,6 +300,16 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                         .sel(1'b0)
     );
 
+    forwarding fwd (.ForwardA, 
+                    .ForwardB, 
+                    .Rn(Rn_ID_EX), 
+                    .Rm(Rm_ID_EX), 
+                    .Rd_EX_MEM(Rd_EX_MEM), 
+                    .Rd_MEM_WB(Rd_MEM_WB), 
+                    .EX_MEM_RegWrite(WB_EX_MEM[1]), 
+                    .MEM_WB_RegWrite(WB_MEM_WB[1])
+    );
+
 
 endmodule 
 
@@ -317,12 +320,15 @@ module cpu_pipelined_testbench;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
-    logic [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM;
+    logic [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout;
+    logic [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout;
     logic [31:0] instr, instr_out; 
-    logic ucborout;
+    logic [4:0] muxreg2out;
+    logic [1:0] ForwardA, ForwardB;
 	// logic negative, zero, overflow, carry_out;
 
-    cpu_pipelined dut (clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, ucborout);
+    cpu_pipelined dut (clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out,
+        ForwardA, ForwardB, aluout, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout);
 
     initial begin // Set up the clock
 		clk <= 0;
