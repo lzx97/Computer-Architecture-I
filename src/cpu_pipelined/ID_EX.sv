@@ -45,12 +45,12 @@ module ID_EX(RD1_out, RD2_out, PCaddr_out, se_o, Rn_out, Rm_out, Rd_out, cntrl_E
 		end 
 		
 		// cntrl_EX
-		for (i = 0; i < 7; i++) begin :eachEX
+		for (i = 0; i < 6; i++) begin :eachEX
 			regester11bit EXs (.data_out(cntrl_EX_out[i]), .data_in(cntrl_EX[i]), .enable, .clk, .rst);
 		end 
 		
 		// cntrl_M
-		for (i = 0; i < 2; i++) begin :eachM
+		for (i = 0; i < 5; i++) begin :eachM
 			regester11bit Ms (.data_out(cntrl_M_out[i]), .data_in(cntrl_M[i]), .enable, .clk, .rst);
 		end 
 		
