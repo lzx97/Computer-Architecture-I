@@ -56,13 +56,11 @@ module forwarding(ForwardA, ForwardB, Rn, Rm, Rd_EX_MEM, Rd_MEM_WB, EX_MEM_RegWr
 		end
 		
 		else if (MEM_WB_RegWrite && Rd_MEM_WB != 5'b11111 && 
-				!(EX_MEM_RegWrite && (Rd_EX_MEM != 5'b11111) && (Rd_EX_MEM != Rn)) &&
 					(Rd_MEM_WB == Rn)) begin
 			ForwardA = 2'b01;
 		end
 		
 		else if (MEM_WB_RegWrite && Rd_MEM_WB != 5'b11111 && 
-				!(EX_MEM_RegWrite && (Rd_EX_MEM != 5'b11111) && (Rd_EX_MEM != Rm)) &&
 					(Rd_MEM_WB == Rm)) begin
 
 			ForwardB = 2'b01;
