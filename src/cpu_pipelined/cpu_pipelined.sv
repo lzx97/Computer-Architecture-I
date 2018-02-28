@@ -1,27 +1,46 @@
-module cpu_pipelined(clk, rst, reg_out);
+`timescale 1ns/10ps
+
+module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, ucborout);
     input clk, rst;
-    output reg_out;
+    output [31:0][63:0] reg_out;
+    output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM;
+    output [31:0] instr, instr_out;
+    output ucborout;
+
+
+    // EX stage variables
+    wire zero_alu, negative_alu, overflow_alu, carryout_alu;
+    wire zero_flag, negative_flag, overflow_flag, carryout_flag;
+    wire cbzandout, xorout, bltandout, muxbrsel, ucborout;
 
     
+    // MEM stage variables
+    wire [63:0] ALUresult_EX_MEM, WriteData_EX_MEM, addr_EX_MEM;
+    wire [4:0] Rd_EX_MEM;
+    wire [4:0] M_EX_MEM;
+    wire [1:0] WB_EX_MEM;
 
+    wire zero_alu_EX_MEM, negative_alu_EX_MEM, overflow_alu_EX_MEM, carryout_alu_EX_MEM;
+    wire zero_flag_EX_MEM, negative_flag_EX_MEM, overflow_flag_EX_MEM, carryout_flag_EX_MEM;
+
+
+    // WB stage variables
+    wire [63:0] memout_MEM_WB, ALUresult_MEM_WB; 
+    wire [4:0] Rd_MEM_WB;
+    wire [1:0] WB_MEM_WB;
+    wire [63:0] muxmemout;
     
 
     
 
 
     /* ---- IF stage ---- */
-    wire [63:0] pc_out, adder0out, adder1out
+    wire [63:0] pc_out, adder0out, adder1out;
     // 32 bit instruction
     wire [31:0] instr, instr_out;
     // output of each muxs
-    wire [63:0] muxbranchout
+    wire [63:0] muxbranchout;
     
-    mux64x2_1 branchmux (
-                        .out(muxbranchout), 
-                        .w0(adder0out), 
-                        .w1(), // fix later 
-                        .sel() // fix
-    );
 
     pc programcounter ( .addr_out(pc_out), 
                         .addr_in(muxbranchout), 
@@ -52,28 +71,28 @@ module cpu_pipelined(clk, rst, reg_out);
     wire [63:0] pcaddr_IF_ID;
 
     IF_ID ifid (        .instr_out, 
-                        .pcaddr_out(pcaddr_IF_ID);
+                        .pcaddr_out(pcaddr_IF_ID),
                         .instr, 
-                        .pcaddr(pc_out);
-                        .enable(), 
+                        .pcaddr(pc_out),
+                        .enable(1'b1), 
                         .clk, 
                         .rst
     );
 
     /* ---- ID stage ---- */
 
-    wire [63:0] ReadData1, ReadData2, se_out
+    wire [63:0] ReadData1, ReadData2, se_out;
     
-    wire [14:0] control, control_out;
+    wire [13:0] control;
     
 
-    wire [63:0] muxreg2out, muxmemout
+    wire [4:0] muxreg2out;
 
     // Reg2Loc mux 
     mux5x2_1 reg2 (     .out(muxreg2out), 
                         .w0(instr_out[20:16]), 
                         .w1(instr_out[4:0]), 
-                        .sel() // fix
+                        .sel(control[0]) // Reg2Loc
     );
 
     regfile rf (        .ReadData1, 
@@ -83,33 +102,28 @@ module cpu_pipelined(clk, rst, reg_out);
                         .ReadRegister1(instr_out[9:5]), 
                         .ReadRegister2(muxreg2out), 
                         .WriteRegister(instr_out[4:0]), 
-                        .RegWrite(), // fix
+                        .RegWrite(WB_MEM_WB[1]), // RegWrite
                         .clk
     );
 
-    signextend se (.instr_out, .result(se_out));
+    signextend se (.instr(instr_out), .result(se_out));
 
-    controlunit control (.Reg2Loc       (control[0]), 
-                         .UBranch       (control[11]), 
-                         .Branch        (control[12]), 
-                         .MemRead       (control[9]), 
-                         .MemtoReg      (control[14]), 
-                         .ALUOp         (control[3:5]), 
-                         .MemWrite      (control[10]), 
-                         .ALUsrc        (control[6]), 
-                         .RegWrite      (control[1]), 
-                         .ShiftDir      (control[7]), 
-						 .FlagEn        (control[8]),
-						 .Brsel         (control[13]),
-                         .IFFlush       (control[2])
+    // control [1:6]   --> EX
+    // control [7:11]  --> M
+    // control [12:13] --> WB
+    controlunit ctrl (.Reg2Loc       (control[0]), 
+                         .UBranch       (control[9]), 
+                         .Branch        (control[10]), 
+                         .MemRead       (control[7]), 
+                         .MemtoReg      (control[12]), 
+                         .ALUOp         (control[3:1]), 
+                         .MemWrite      (control[8]), 
+                         .ALUsrc        (control[4]), 
+                         .RegWrite      (control[13]), 
+                         .ShiftDir      (control[5]), 
+						 .FlagEn        (control[6]),
+						 .Brsel         (control[11]),
                          .opcode        (instr_out[31:21])
-    );
-
-    mux15x2_1 contromux (
-                        .out(control_out), 
-                        .w0(14'b0), 
-                        .w1(control), 
-                        .sel // fix
     );
 
     /* ---- ID stage ---- */
@@ -118,7 +132,7 @@ module cpu_pipelined(clk, rst, reg_out);
     wire [4:0] Rn_ID_EX, Rm_ID_EX, Rd_ID_EX;
     wire [5:0] EX_ID_EX;
     wire [4:0] M_ID_EX;
-    wire WB_ID_EX;
+    wire [1:0] WB_ID_EX;
 
     ID_EX idex (        .RD1_out(RD1_ID_EX), 
                         .RD2_out(RD2_ID_EX), 
@@ -129,7 +143,7 @@ module cpu_pipelined(clk, rst, reg_out);
                         .Rd_out(Rd_ID_EX), 
                         .cntrl_EX_out(EX_ID_EX), 
                         .cntrl_M_out(M_ID_EX), 
-                        .cntrl_WB_out(M_ID_EX) 
+                        .cntrl_WB_out(WB_ID_EX), 
 				        .ReadData1, 
                         .ReadData2, 
                         .PCaddr(pcaddr_IF_ID), 
@@ -137,24 +151,32 @@ module cpu_pipelined(clk, rst, reg_out);
                         .Rn(instr_out[9:5]), 
                         .Rm(instr_out[20:16]), 
                         .Rd(instr_out[4:0]), 
-                        .cntrl_EX(control[3:8]), 
-                        .cntrl_M(control[9:13]), 
-                        .cntrl_WB(control[14])
+                        .cntrl_EX(control[6:1]), 
+                        .cntrl_M(control[11:7]), 
+                        .cntrl_WB(control[13:12]),
+                        .enable(1'b1),
+                        .clk,
+                        .rst
     );
 
     /* ---- EX stage ---- */
 
     wire [63:0] aluout, sl2out;
 
-    alu aluuu (     .A(), 
-                    .B(), 
-                    .cntrl(), // fix - from control
+    wire [63:0] forward1out, forward2out;
+    wire [1:0] ForwardA, ForwardB;
+    mux64x4_1 forwardmux1 (.out(forward1out), .w0(RD1_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardA)); 
+    mux64x4_1 forwardmux2 (.out(forward2out), .w0(RD2_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardB)); 
+
+    alu thealu (     .A(forward1out), 
+                    .B(forward2out), 
+                    .cntrl(EX_ID_EX[2:0]), // ALUOp
                     .result(aluout), 
                     .negative(negative_alu), 
                     .zero(zero_alu), 
                     .overflow(overflow_alu), 
                     .carry_out(carry_alu), 
-                    .shiftdir() // fix - from control
+                    .shiftdir(EX_ID_EX[4]) // ShiftDir
     );
 
     flagReg	fr (	.flag_out({negative_flag, zero_flag, overflow_flag, carry__flag}), 
@@ -177,17 +199,21 @@ module cpu_pipelined(clk, rst, reg_out);
                     .shiftdir(1'bx)
     );
 
+    forwarding fwd (.ForwardA, 
+                    .ForwardB, 
+                    .Rn(Rn_ID_EX), 
+                    .Rm(Rm_ID_EX), 
+                    .Rd_EX_MEM(Rd_EX_MEM), 
+                    .Rd_MEM_WB(Rd_MEM_WB), 
+                    .EX_MEM_RegWrite(WB_EX_MEM[1]), 
+                    .MEM_WB_RegWrite(WB_MEM_WB[1])
+    );
+
 
 
     /* ---- EX stage ---- */
 
-    wire [63:0] ALUresult_EX_MEM, WriteData_EX_MEM, addr_EX_MEM
-    wire [4:0] Rd_EX_MEM;
-    wire [4:0] M_EX_MEM;
-    wire WB_EX_MEM;
-
-    wire zero_alu_EX_MEM, negative_alu_EX_MEM, overflow_alu_EX_MEM, carryout_alu_EX_MEM;
-    wire zero_flag_EX_MEM, negative_flag_EX_MEM, overflow_flag_EX_MEM, carryout_flag_EX_MEM;
+    
 
     EX_MEM exmem (  .ALUresult_out(ALUresult_EX_MEM), 
                     .WriteData_out(WriteData_EX_MEM), 
@@ -204,7 +230,7 @@ module cpu_pipelined(clk, rst, reg_out);
                     .overflow_flag_out(overflow_flag_EX_MEM), 
                     .carryout_flag_out(carryout_flag_EX_MEM),
                     .ALUresult(aluout), 
-                    .WriteData(), //fix 
+                    .WriteData(forward2out), 
                     .addr(adder1out), 
                     .Rd(Rd_ID_EX), 
                     .WB(WB_ID_EX),
@@ -216,7 +242,10 @@ module cpu_pipelined(clk, rst, reg_out);
                     .zero_flag, 
                     .negative_flag, 
                     .overflow_flag, 
-                    .carryout_flag 
+                    .carryout_flag,
+                    .enable(1'b1),
+                    .clk,
+                    .rst
     );
 
     /* ---- MEM stage ---- */ 
@@ -224,34 +253,32 @@ module cpu_pipelined(clk, rst, reg_out);
     wire [63:0] memout;
 
     datamem dm (    .address(ALUresult_EX_MEM),
-	                .write_enable(), // fix - from control
-	                .read_enable(), // fix -- from control
+	                .write_enable(M_EX_MEM[1]), // MemWrite
+	                .read_enable(M_EX_MEM[0]), //  MemRead
 	                .write_data(WriteData_EX_MEM),
 	                .clk,
 	                .xfer_size(4'd8),
 	                .read_data(memout)
 	);
 
-    wire cbzandout, xorout, bltandout, muxbrsel, ucborout;
+    
     /* Branch control */
     // Branch control for CBZ
-    and cbzand (cbzandout, Branch, zero_alu_EX_MEM); // fix Branch
+    and cbzand (cbzandout, M_EX_MEM[3], zero_alu_EX_MEM); // M_EX_MEM[3] == Branch
     
     // Branch control for BLT
     xor bltxor (xorout, negative_flag_EX_MEM, overflow_flag_EX_MEM);
-    and bltand (bltandout, Branch, xorout); // fix Branch
+    and bltand (bltandout, M_EX_MEM[3], xorout); // 
 	
     // Branch control for CBZ, BLT, and Unconditional Branch
-	mux2_1 brselmux (.out(muxbrsel), .w0(cbzandout), .w1(bltandout), .sel(Brsel)); // fix brsel
-    or ucdor (ucborout, muxbrsel, UBranch); // fix UBranch
+	mux2_1 brselmux (.out(muxbrsel), .w0(cbzandout), .w1(bltandout), .sel(M_EX_MEM[4])); // M_EX_MEM[4] == brsel
+    or ucdor (ucborout, muxbrsel, M_EX_MEM[2]); // M_EX_MEM[2] == UBranch
 
 
 
     /* ---- MEM stage ---- */ 
 
-    wire [63:0] memout_MEM_WB, ALUresult_MEM_WB; 
-    wire [4:0] Rd_MEM_WB;
-    wire [1:0] WB_MEM_WB;
+    
 
      MEM_WB memwb (     .Mem_out(memout_MEM_WB), 
                         .ALUresult_out(ALUresult_MEM_WB), 
@@ -260,12 +287,56 @@ module cpu_pipelined(clk, rst, reg_out);
                         .Mem(memout), 
                         .ALUresult(ALUresult_EX_MEM), 
                         .Rd(Rd_EX_MEM), 
-                        .WB(WB_EX_MEM)
+                        .WB(WB_EX_MEM),
+                        .enable(1'b1),
+                        .clk,
+                        .rst
     );
 
     /* ---- WB stage ---- */ 
 
-    wire [63:0] muxmemout;
-    mux64x2_1 memmux (.out(muxmemout), .w0(ALUresult_MEM_WB), .w1(memout_MEM_WB), .sel(MemtoReg)); // fix sel
+    
+    mux64x2_1 memmux (.out(muxmemout), .w0(ALUresult_MEM_WB), .w1(memout_MEM_WB), .sel(WB_MEM_WB[0])); // WB_MEM_WB[0] == MemtoReg
 
     /* ---- WB stage ---- */ 
+
+    mux64x2_1 branchmux (
+                        .out(muxbranchout), 
+                        .w0(adder0out), 
+                        .w1(addr_EX_MEM),
+                        .sel(1'b0)
+    );
+
+
+endmodule 
+
+
+module cpu_pipelined_testbench;
+
+    parameter ClockDelay = 5000;
+
+    logic clk, rst;
+    logic [31:0][63:0] reg_out;
+    logic [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM;
+    logic [31:0] instr, instr_out; 
+    logic ucborout;
+	// logic negative, zero, overflow, carry_out;
+
+    cpu_pipelined dut (clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, ucborout);
+
+    initial begin // Set up the clock
+		clk <= 0;
+		forever #(ClockDelay/2) clk <= ~clk;
+	end
+
+    integer i;
+    initial begin
+        rst = 1; @(posedge clk);
+
+        rst = 0;
+        for (i = 0; i < 30; i++) begin
+            @(posedge clk);
+        end
+        $stop;
+    end
+endmodule 

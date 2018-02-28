@@ -25,6 +25,7 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
 		WB: 
 			MemtoReg    1
             RegWrite    1
+                        2
 	
 	*/
 

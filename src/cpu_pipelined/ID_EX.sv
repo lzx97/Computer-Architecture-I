@@ -1,5 +1,6 @@
-module ID_EX(RD1_out, RD2_out, PCaddr_out, se_o, Rn_out, Rm_out, Rd_out, cntrl_EX_out, cntrl_M_out, cntrl_WB_out // output
-				ReadData1, ReadData2, PCaddr, se, Rn, Rm, Rd, cntrl_EX, cntrl_M, cntrl_WB); // input
+module ID_EX(RD1_out, RD2_out, PCaddr_out, se_o, Rn_out, Rm_out, Rd_out, cntrl_EX_out, cntrl_M_out, cntrl_WB_out, // output
+				ReadData1, ReadData2, PCaddr, se, Rn, Rm, Rd, cntrl_EX, cntrl_M, cntrl_WB, enable, clk, rst); // input
+	input enable, clk, rst;
 	input [63:0] ReadData1, ReadData2, PCaddr, se;
 	input [4:0] Rn, Rm, Rd;
 	
@@ -13,13 +14,13 @@ module ID_EX(RD1_out, RD2_out, PCaddr_out, se_o, Rn_out, Rm_out, Rd_out, cntrl_E
 	
 	// WB cntrl
 	// MemtoReg
-	input cntrl_WB;
+	input [1:0] cntrl_WB;
 	
 	output [63:0] RD1_out, RD2_out, PCaddr_out, se_o;
 	output [4:0] Rn_out, Rm_out, Rd_out;
 	output [5:0] cntrl_EX_out;
 	output [4:0] cntrl_M_out;
-	output cntrl_WB_out;
+	output [1:0] cntrl_WB_out;
 	
 	genvar i;
 	generate 
@@ -54,7 +55,9 @@ module ID_EX(RD1_out, RD2_out, PCaddr_out, se_o, Rn_out, Rm_out, Rd_out, cntrl_E
 		end 
 		
 		// cntrl_WB
-		regester11bit WB (.data_out(cntrl_WB), .data_in(cntrl_WB_out), .enable, .clk, .rst);
+		for (i = 0; i < 2; i++) begin :eachWB
+			regester11bit WB (.data_out(cntrl_WB_out[i]), .data_in(cntrl_WB[i]), .enable, .clk, .rst);
+		end
 
 		// Rn
 		for (i = 0; i < 5; i++) begin :eachRn

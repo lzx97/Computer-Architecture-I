@@ -1,4 +1,5 @@
-module MEM_WB(Mem_out, ALUresult_out, Rd_out, WB_out, Mem, ALUresult, Rd, WB);
+module MEM_WB(Mem_out, ALUresult_out, Rd_out, WB_out, Mem, ALUresult, Rd, WB, enable, clk, rst);
+	input enable, clk, rst;
 	input [63:0] Mem, ALUresult;
 	input [4:0] Rd;
 	input [1:0] WB;

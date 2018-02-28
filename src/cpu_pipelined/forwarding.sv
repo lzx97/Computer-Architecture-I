@@ -1,5 +1,5 @@
-module forwarding(ForwardA, ForwardB, Rn, Rd, Rd_EX_MEM, Rd_MEM_WB, EX_MEM_RegWrite, MEM_WB_RegWrite);
-	input [4:0] Rn, Rd;
+module forwarding(ForwardA, ForwardB, Rn, Rm, Rd_EX_MEM, Rd_MEM_WB, EX_MEM_RegWrite, MEM_WB_RegWrite);
+	input [4:0] Rn, Rm;
 	input [4:0] Rd_EX_MEM, Rd_MEM_WB;
 	input EX_MEM_RegWrite, MEM_WB_RegWrite;
 	output reg [1:0] ForwardA, ForwardB;
