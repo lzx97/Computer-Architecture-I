@@ -29,8 +29,11 @@ add wave -noupdate /cpu_pipelined_testbench/muxbrsel
 add wave -noupdate /cpu_pipelined_testbench/M_EX_MEM
 add wave -noupdate /cpu_pipelined_testbench/M_ID_EX
 add wave -noupdate /cpu_pipelined_testbench/EX_ID_EX
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/pcaddr_IF_ID
+add wave -noupdate /cpu_pipelined_testbench/zero_alu
+add wave -noupdate /cpu_pipelined_testbench/zero_alu_EX_MEM
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {92519476 ps} 0}
+WaveRestoreCursors {{Cursor 1} {81511554 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 233
 configure wave -valuecolwidth 100
@@ -46,4 +49,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {31477349 ps} {158869614 ps}
+WaveRestoreZoom {68613583 ps} {156915075 ps}

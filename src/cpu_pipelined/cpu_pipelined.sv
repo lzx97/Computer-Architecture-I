@@ -3,15 +3,15 @@
 module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM,
             RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out, ForwardA, ForwardB, aluout,
             ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM,
-            cbzandout, xorout, bltandout, muxbrsel, M_ID_EX, EX_ID_EX);
+            cbzandout, xorout, bltandout, muxbrsel, M_ID_EX, EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM);
     input clk, rst;
     output [31:0][63:0] reg_out;
     output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout;
-    output [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX;
+    output [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX, pcaddr_IF_ID;
     output [31:0] instr, instr_out;
     output [4:0] muxreg2out, M_EX_MEM, M_ID_EX;
     output [1:0] ForwardA, ForwardB;
-    output ucborout, cbzandout, xorout, bltandout, muxbrsel;
+    output ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM;
     output [5:0] EX_ID_EX;
 
     // IF stage variables
@@ -338,17 +338,17 @@ module cpu_pipelined_testbench;
     logic clk, rst;
     logic [31:0][63:0] reg_out;
     logic [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout;
-    logic [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX;
+    logic [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX, pcaddr_IF_ID;
     logic [31:0] instr, instr_out; 
     logic [4:0] muxreg2out, M_EX_MEM, M_ID_EX;
     logic [1:0] ForwardA, ForwardB;
-    logic ucborout, cbzandout, xorout, bltandout, muxbrsel;
+    logic ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM;
     logic [5:0] EX_ID_EX;
 	// logic negative, zero, overflow, carry_out;
 
     cpu_pipelined dut (clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out,
         ForwardA, ForwardB, aluout, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM, cbzandout, xorout, bltandout, muxbrsel, M_ID_EX,
-        EX_ID_EX);
+        EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM);
 
     initial begin // Set up the clock
 		clk <= 0;
