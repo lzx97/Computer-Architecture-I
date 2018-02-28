@@ -129,6 +129,19 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                         .clk
     );
 
+    wire [63:0] readwritemux1, readwritemux2;
+    wire readwrite1, readwrite2;
+
+    mux64x2_1 muxmux1 (.out(readwritemux1), .w0(ReadData1), .w1(muxmemout), .sel(readwrite1));
+    mux64x2_1 muxmux2 (.out(readwritemux2), .w0(ReadData2), .w1(muxmemout), .sel(readwrite2));
+
+    readwrite wr (      .readwrite1, 
+                        .readwrite2, 
+                        .Rd_MEM_WB, 
+                        .Rn(instr_out[9:5]), 
+                        .Rm(instr_out[20:16])
+    );
+
     signextend se (.instr(instr_out), .result(se_out));
 
     // control [1:6]   --> EX
@@ -163,8 +176,8 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                         .cntrl_EX_out(EX_ID_EX), 
                         .cntrl_M_out(M_ID_EX), 
                         .cntrl_WB_out(WB_ID_EX), 
-				        .ReadData1, 
-                        .ReadData2, 
+				        .ReadData1(readwritemux1), 
+                        .ReadData2(readwritemux2), 
                         .PCaddr(pcaddr_IF_ID), 
                         .se(se_out), 
                         .Rn(instr_out[9:5]), 
