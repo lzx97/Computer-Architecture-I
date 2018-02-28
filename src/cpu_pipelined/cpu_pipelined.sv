@@ -11,11 +11,39 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     output [4:0] muxreg2out;
     output [1:0] ForwardA, ForwardB;
 
+    // IF stage variables
+    wire [63:0] pcaddr_IF_ID;
+    wire [63:0] pc_out, adder0out, adder1out;
+    // 32 bit instruction
+    wire [31:0] instr, instr_out;
+    // output of each muxs
+    wire [63:0] muxbranchout;
+    
+
+    // ID stage variables
+    wire [63:0] RD1_ID_EX, RD2_ID_EX, PCaddr_ID_EX, se_ID_EX;
+    wire [4:0] Rn_ID_EX, Rm_ID_EX, Rd_ID_EX;
+    wire [5:0] EX_ID_EX;
+    wire [4:0] M_ID_EX;
+    wire [1:0] WB_ID_EX;
+
+    wire [63:0] ReadData1, ReadData2, se_out;
+    
+    wire [13:0] control;
+    
+
+    wire [4:0] muxreg2out;
+
 
     // EX stage variables
     wire zero_alu, negative_alu, overflow_alu, carryout_alu;
     wire zero_flag, negative_flag, overflow_flag, carryout_flag;
     wire cbzandout, xorout, bltandout, muxbrsel, ucborout;
+
+    wire [63:0] aluout, sl2out;
+
+    wire [63:0] forward1out, forward2out, muxaluout;
+    wire [1:0] ForwardA, ForwardB;
 
     
     // MEM stage variables
@@ -23,6 +51,8 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     wire [4:0] Rd_EX_MEM;
     wire [4:0] M_EX_MEM;
     wire [1:0] WB_EX_MEM;
+
+    wire [63:0] memout;
 
     wire zero_alu_EX_MEM, negative_alu_EX_MEM, overflow_alu_EX_MEM, carryout_alu_EX_MEM;
     wire zero_flag_EX_MEM, negative_flag_EX_MEM, overflow_flag_EX_MEM, carryout_flag_EX_MEM;
@@ -39,11 +69,6 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
 
     /* ---- IF stage ---- */
-    wire [63:0] pc_out, adder0out, adder1out;
-    // 32 bit instruction
-    wire [31:0] instr, instr_out;
-    // output of each muxs
-    wire [63:0] muxbranchout;
     
 
     pc programcounter ( .addr_out(pc_out), 
@@ -72,7 +97,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     /* ---- IF stage ---- */
 
-    wire [63:0] pcaddr_IF_ID;
+    
 
     IF_ID ifid (        .instr_out, 
                         .pcaddr_out(pcaddr_IF_ID),
@@ -85,18 +110,12 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     /* ---- ID stage ---- */
 
-    wire [63:0] ReadData1, ReadData2, se_out;
     
-    wire [13:0] control;
-    
-
-    wire [4:0] muxreg2out;
-
     // Reg2Loc mux 
     mux5x2_1 reg2 (     .out(muxreg2out), 
                         .w0(instr_out[20:16]), 
                         .w1(instr_out[4:0]), 
-                        .sel(instr_out[28]) // Reg2Loc
+                        .sel(control[0]) // Reg2Loc
     );
 
     regfile rf (        .ReadData1, 
@@ -132,11 +151,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     /* ---- ID stage ---- */
 
-    wire [63:0] RD1_ID_EX, RD2_ID_EX, PCaddr_ID_EX, se_ID_EX;
-    wire [4:0] Rn_ID_EX, Rm_ID_EX, Rd_ID_EX;
-    wire [5:0] EX_ID_EX;
-    wire [4:0] M_ID_EX;
-    wire [1:0] WB_ID_EX;
+    
 
     ID_EX idex (        .RD1_out(RD1_ID_EX), 
                         .RD2_out(RD2_ID_EX), 
@@ -165,10 +180,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     /* ---- EX stage ---- */
 
-    wire [63:0] aluout, sl2out;
-
-    wire [63:0] forward1out, forward2out, muxaluout;
-    wire [1:0] ForwardA, ForwardB;
+    
     mux64x4_1 forwardmux1 (.out(forward1out), .w0(RD1_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardA)); 
     mux64x4_1 forwardmux2 (.out(forward2out), .w0(RD2_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardB)); 
 
@@ -243,7 +255,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     /* ---- MEM stage ---- */ 
     
-    wire [63:0] memout;
+    
 
     datamem dm (    .address(ALUresult_EX_MEM),
 	                .write_enable(M_EX_MEM[1]), // MemWrite
