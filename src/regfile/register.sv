@@ -13,4 +13,4 @@ module register(data_out, data_in, enable, clk, rst);
 			regester11bit regs (.data_out(data_out[i]), .data_in(data_in[i]), .enable, .clk, .rst);
 		end
 	endgenerate 
-endmodule 
+endmodule 
