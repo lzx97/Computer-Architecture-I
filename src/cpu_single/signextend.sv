@@ -40,5 +40,8 @@ module signextend(instr, result);
 			result = {{52{1'b0}}, instr[21:10]};
         end
         
+        else begin
+            result = 64'b0;
+        end
     end
 endmodule 
