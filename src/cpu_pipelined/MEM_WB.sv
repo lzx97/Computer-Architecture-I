@@ -1,11 +1,11 @@
-module MEM_WB(Mem_out, ALUresult_out, WB_out, Mem, ALUresult, Rd, WB);
+module MEM_WB(Mem_out, ALUresult_out, Rd_out, WB_out, Mem, ALUresult, Rd, WB);
 	input [63:0] Mem, ALUresult;
 	input [4:0] Rd;
-	input WB;
+	input [1:0] WB;
 	
 	output [63:0] Mem_out, ALUresult_out;
 	output [4:0] Rd_out;
-	output WB_out;
+	output [1:0] WB_out;
 	
 	genvar i; 
 	generate 
@@ -20,12 +20,14 @@ module MEM_WB(Mem_out, ALUresult_out, WB_out, Mem, ALUresult, Rd, WB);
 		end 
 		
 		// Rd
-		for (i = 0; i < 5; i++) begin :eachRds
+		for (i = 0; i < 5; i++) begin : eachRds
 			regester11bit Rds (.data_out(Rd_out[i]), .data_in(Rd[i]), .enable, .clk, .rst);
 		end 
 		
 		// WB
-		regester11bit WBreg (.data_out(WB_out), .data_in(WB), .enable, .clk, .rst);
+		for (i = 0; i < 5; i++) begin : eachWB
+			regester11bit WBreg (.data_out(WB_out[i]), .data_in(WB[i]), .enable, .clk, .rst);
+		end
 	endgenerate 
 	
 endmodule 

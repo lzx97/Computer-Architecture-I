@@ -1,32 +1,30 @@
 /* CPU control unit */
 
-module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel, IFFlush, opcode);
+module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel, opcode);
     input [10:0] opcode;
     output reg Reg2Loc, UBranch, Branch, MemRead, MemtoReg, MemWrite, ALUsrc, RegWrite, ShiftDir, FlagEn, Brsel;
     output reg [2:0] ALUOp;
 	
 	/* 
 		BEFORE EX:
-			Reg2Loc
-			UBranch
-			Branch
-			RegWrite
-            IFFlush
-		
+			Reg2Loc     1
 		EX: 
 			ALUOp       3
 			ALUsrc      1
 			ShiftDir    1
 			FlagEn      1
-			Brsel?      1
-                        7
+                        6
 		
 		M:
 			MemRead     1
 			MemWrite    1
-                        2
+            UBranch     1
+            Branch      1
+            Brsel       1
+                        5
 		WB: 
 			MemtoReg    1
+            RegWrite    1
 	
 	*/
 
@@ -58,7 +56,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0; // set flags 
 				Brsel    =  1'bx; // select CBZ or BLT
-                IFFlush  =  1'b0;
             end
 
             ADDS: begin
@@ -74,7 +71,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b1;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b0;
             end
 
             B: begin
@@ -90,7 +86,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b1;
             end
 
             BLT: begin
@@ -106,7 +101,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
 				Brsel    =  1'b1;
-                IFFlush  =  1'b1;
             end
 
             CBZ: begin
@@ -122,7 +116,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
 				Brsel    =  1'b0;
-                IFFlush  =  1'b1;
             end
 
             LDUR: begin
@@ -138,7 +131,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b1;
             end
 
             LSL: begin
@@ -154,7 +146,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'b0;
 				FlagEn   =  1'b0;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b0;
             end
 
             LSR: begin
@@ -170,7 +161,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'b1;
 				FlagEn   =  1'b0;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b0;
             end
 
             MUL: begin
@@ -186,7 +176,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b0;
             end
 
             STUR: begin
@@ -202,7 +191,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b0;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b0;
             end
 
             SUBS: begin
@@ -218,7 +206,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'b1;
 				Brsel    =  1'bx;
-                IFFlush  =  1'b0;
             end
 
             default: begin
@@ -234,7 +221,6 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
                 ShiftDir =  1'bx;
 				FlagEn   =  1'bx;
 				Brsel    =  1'bx;
-                IFFlush  =  1'bx;
             end
         endcase
     end
