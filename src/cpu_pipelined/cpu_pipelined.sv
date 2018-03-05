@@ -165,6 +165,19 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                          .opcode        (instr_out[31:21])
     );
 
+    // Branch addr calculation
+    shiftleft2 sl2 (.out(sl2out), .in(se_out));
+    alu adder1 (    .A(pcaddr_IF_ID), 
+                    .B(sl2out), 
+                    .cntrl(3'b010), 
+                    .result(adder1out), 
+                    .negative(), 
+                    .zero(), 
+                    .overflow(), 
+                    .carry_out(), 
+                    .shiftdir(1'bx)
+    );
+
     /* ---- ID stage ---- */
 
     
@@ -218,19 +231,6 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 					.clk, 
 					.rst
 	); 
-
-    // Branch addr calculation
-    shiftleft2 sl2 (.out(sl2out), .in(se_ID_EX));
-    alu adder1 (    .A(PCaddr_ID_EX), 
-                    .B(sl2out), 
-                    .cntrl(3'b010), 
-                    .result(adder1out), 
-                    .negative(), 
-                    .zero(), 
-                    .overflow(), 
-                    .carry_out(), 
-                    .shiftdir(1'bx)
-    );
 
     /* ---- EX stage ---- */
 
@@ -312,7 +312,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     mux64x2_1 branchmux (
                         .out(muxbranchout), 
                         .w0(adder0out), 
-                        .w1(addr_EX_MEM),
+                        .w1(adder1out),
                         .sel(ucborout)
                         //.sel(1'b0)
     );
