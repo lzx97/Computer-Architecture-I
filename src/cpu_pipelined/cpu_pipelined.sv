@@ -3,15 +3,16 @@
 module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM,
             RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out, ForwardA, ForwardB, aluout,
             ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM,
-            cbzandout, xorout, bltandout, muxbrsel, M_ID_EX, EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM);
+            cbzandout, xorout, bltandout, muxbrsel, M_ID_EX, EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM, 
+            se_out, adder1out, forward1out, forward2out, readwritemux1, readwritemux2, readwrite1, readwrite2);
     input clk, rst;
     output [31:0][63:0] reg_out;
-    output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout;
-    output [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX, pcaddr_IF_ID;
+    output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, se_out, adder1out, forward1out, forward2out;
+    output [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX, pcaddr_IF_ID, readwritemux1, readwritemux2;
     output [31:0] instr, instr_out;
     output [4:0] muxreg2out, M_EX_MEM, M_ID_EX;
     output [1:0] ForwardA, ForwardB;
-    output ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM;
+    output ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM, readwrite1, readwrite2;
     output [5:0] EX_ID_EX;
 
     // IF stage variables
@@ -135,15 +136,15 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     wire [63:0] readwritemux1, readwritemux2;
     wire readwrite1, readwrite2;
 
-    mux64x2_1 muxmux1 (.out(readwritemux1), .w0(ReadData1), .w1(muxmemout), .sel(readwrite1));
-    mux64x2_1 muxmux2 (.out(readwritemux2), .w0(ReadData2), .w1(muxmemout), .sel(readwrite2));
-
     readwrite wr (      .readwrite1, 
                         .readwrite2, 
                         .Rd_MEM_WB, 
                         .Rn(instr_out[9:5]), 
                         .Rm(instr_out[20:16])
     );
+
+    mux64x2_1 muxmux1 (.out(readwritemux1), .w0(ReadData1), .w1(muxmemout), .sel(readwrite1));
+    mux64x2_1 muxmux2 (.out(readwritemux2), .w0(ReadData2), .w1(muxmemout), .sel(readwrite2));
 
     signextend se (.instr(instr_out), .result(se_out));
 
@@ -165,6 +166,9 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                          .opcode        (instr_out[31:21])
     );
 
+    mux64x4_1 forwardmux1 (.out(forward1out), .w0(readwritemux1), .w1(ALUresult_EX_MEM), .w2(aluout), .w3(64'bx), .sel(ForwardA)); 
+    mux64x4_1 forwardmux2 (.out(forward2out), .w0(readwritemux2), .w1(ALUresult_EX_MEM), .w2(aluout), .w3(64'bx), .sel(ForwardB)); 
+
     // Branch addr calculation
     shiftleft2 sl2 (.out(sl2out), .in(se_out));
     alu adder1 (    .A(pcaddr_IF_ID), 
@@ -177,6 +181,19 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                     .carry_out(), 
                     .shiftdir(1'bx)
     );
+
+    wire zero_cbz;
+    zero_detection zd (.zero(zero_cbz), .in(forward2out)); // fix
+    // Branch control for CBZ
+    and cbzand (cbzandout, control[10], zero_cbz); // M_EX_MEM[3] == Branch
+    
+    // Branch control for BLT
+    xor bltxor (xorout, negative_flag_EX_MEM, overflow_flag_EX_MEM);
+    and bltand (bltandout, control[10], xorout); // 
+	
+    // Branch control for CBZ, BLT, and Unconditional Branch
+	mux2_1 brselmux (.out(muxbrsel), .w0(cbzandout), .w1(bltandout), .sel(control[11])); // M_EX_MEM[4] == brsel
+    or ucdor (ucborout, muxbrsel, control[9]); // M_EX_MEM[2] == UBranch
 
     /* ---- ID stage ---- */
 
@@ -192,8 +209,8 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                         .cntrl_EX_out(EX_ID_EX), 
                         .cntrl_M_out(M_ID_EX), 
                         .cntrl_WB_out(WB_ID_EX), 
-				        .ReadData1(readwritemux1), 
-                        .ReadData2(readwritemux2), 
+				        .ReadData1(forward1out), 
+                        .ReadData2(forward2out), 
                         .PCaddr(pcaddr_IF_ID), 
                         .se(se_out), 
                         .Rn(instr_out[9:5]), 
@@ -210,11 +227,11 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     /* ---- EX stage ---- */
 
     
-    mux64x4_1 forwardmux1 (.out(forward1out), .w0(RD1_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardA)); 
-    mux64x4_1 forwardmux2 (.out(forward2out), .w0(RD2_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardB)); 
+    //mux64x4_1 forwardmux1 (.out(forward1out), .w0(RD1_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardA)); 
+    //mux64x4_1 forwardmux2 (.out(forward2out), .w0(RD2_ID_EX), .w1(muxmemout), .w2(ALUresult_EX_MEM), .w3(64'bx), .sel(ForwardB)); 
 
-    mux64x2_1 alumux (.out(muxaluout), .w0(forward2out), .w1(se_ID_EX), .sel(EX_ID_EX[3]));
-    alu thealu (    .A(forward1out), 
+    mux64x2_1 alumux (.out(muxaluout), .w0(RD2_ID_EX), .w1(se_ID_EX), .sel(EX_ID_EX[3]));
+    alu thealu (    .A(RD1_ID_EX), 
                     .B(muxaluout), 
                     .cntrl(EX_ID_EX[2:0]), // ALUOp
                     .result(aluout), 
@@ -272,7 +289,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     
     /* Branch control */
-    // Branch control for CBZ
+    /*// Branch control for CBZ
     and cbzand (cbzandout, M_EX_MEM[3], zero_alu_EX_MEM); // M_EX_MEM[3] == Branch
     
     // Branch control for BLT
@@ -281,7 +298,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 	
     // Branch control for CBZ, BLT, and Unconditional Branch
 	mux2_1 brselmux (.out(muxbrsel), .w0(cbzandout), .w1(bltandout), .sel(M_EX_MEM[4])); // M_EX_MEM[4] == brsel
-    or ucdor (ucborout, muxbrsel, M_EX_MEM[2]); // M_EX_MEM[2] == UBranch
+    or ucdor (ucborout, muxbrsel, M_EX_MEM[2]); // M_EX_MEM[2] == UBranch*/
 
 
 
@@ -319,12 +336,12 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     forwarding fwd (.ForwardA, 
                     .ForwardB, 
-                    .Rn(Rn_ID_EX), 
-                    .Rm(Rm_ID_EX), 
-                    .Rd_EX_MEM(Rd_EX_MEM), 
-                    .Rd_MEM_WB(Rd_MEM_WB), 
-                    .EX_MEM_RegWrite(WB_EX_MEM[1]), 
-                    .MEM_WB_RegWrite(WB_MEM_WB[1])
+                    .Rn(instr_out[9:5]), 
+                    .Rm(instr_out[20:16]), 
+                    .Rd_EX_MEM(Rd_ID_EX), 
+                    .Rd_MEM_WB(Rd_EX_MEM), 
+                    .EX_MEM_RegWrite(WB_ID_EX[1]), 
+                    .MEM_WB_RegWrite(WB_EX_MEM[1])
     );
 
 
@@ -337,18 +354,18 @@ module cpu_pipelined_testbench;
 
     logic clk, rst;
     logic [31:0][63:0] reg_out;
-    logic [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout;
-    logic [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX, pcaddr_IF_ID;
+    logic [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, se_out, adder1out, forward1out, forward2out;
+    logic [63:0] RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, aluout, muxaluout, PCaddr_ID_EX, pcaddr_IF_ID, readwritemux1, readwritemux2;
     logic [31:0] instr, instr_out; 
     logic [4:0] muxreg2out, M_EX_MEM, M_ID_EX;
     logic [1:0] ForwardA, ForwardB;
-    logic ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM;
+    logic ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM, readwrite1, readwrite2;
     logic [5:0] EX_ID_EX;
 	// logic negative, zero, overflow, carry_out;
 
     cpu_pipelined dut (clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out,
         ForwardA, ForwardB, aluout, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM, cbzandout, xorout, bltandout, muxbrsel, M_ID_EX,
-        EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM);
+        EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM, se_out, adder1, forward1out, forward2out, readwritemux1, readwritemux2, readwrite1, readwrite2);
 
     initial begin // Set up the clock
 		clk <= 0;
@@ -360,7 +377,7 @@ module cpu_pipelined_testbench;
         rst = 1; @(posedge clk);
 
         rst = 0;
-        for (i = 0; i < 30; i++) begin
+        for (i = 0; i < 80; i++) begin
             @(posedge clk);
         end
         $stop;

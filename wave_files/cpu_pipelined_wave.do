@@ -9,9 +9,17 @@ add wave -noupdate -radix binary /cpu_pipelined_testbench/instr
 add wave -noupdate /cpu_pipelined_testbench/instr_out
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/RD1_ID_EX
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/RD2_ID_EX
-add wave -noupdate -radix decimal /cpu_pipelined_testbench/se_ID_EX
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/se_out
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/adder1out
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/forward1out
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/forward2out
+add wave -noupdate /cpu_pipelined_testbench/readwrite1
+add wave -noupdate /cpu_pipelined_testbench/readwrite2
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/readwritemux2
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/readwritemux1
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/ReadData1
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/ReadData2
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/se_ID_EX
 add wave -noupdate /cpu_pipelined_testbench/muxreg2out
 add wave -noupdate /cpu_pipelined_testbench/ForwardA
 add wave -noupdate /cpu_pipelined_testbench/ForwardB
@@ -33,7 +41,7 @@ add wave -noupdate -radix decimal /cpu_pipelined_testbench/pcaddr_IF_ID
 add wave -noupdate /cpu_pipelined_testbench/zero_alu
 add wave -noupdate /cpu_pipelined_testbench/zero_alu_EX_MEM
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {81511554 ps} 0}
+WaveRestoreCursors {{Cursor 1} {331430199 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 233
 configure wave -valuecolwidth 100
@@ -49,4 +57,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {68613583 ps} {156915075 ps}
+WaveRestoreZoom {318613583 ps} {406915075 ps}

@@ -34,9 +34,9 @@
 1001000100_000000000000_11111_00011 // ADDI X3, X31, #0     // Flag for when we get to the final result.					12
 1001000100_000000000000_11111_00100 // ADDI X4, X31, #0     // Set each bit as you do a branch correctly.					16
 1001000100_000000000000_11111_00101 // ADDI X5, X31, #0     // Set if branches have >1 delay slot.							20
-000101_00000000000000000000001100   // B FORWARD_B          // 1st taken branch (+12)										24
-1001000100_000000000001_00010_00010 // ADDI X2, X2, #1      // delay_slot++													28
-1001000100_000000000001_00101_00101 // ADDI X5, X5, #1      // Should never reach here.										32
+000101_00000000000000000000001100   // B FORWARD_B          // 1st taken branch (+12)										
+1001000100_000000000001_00010_00010 // ADDI X2, X2, #1      // delay_slot++													24
+1001000100_000000000001_00101_00101 // ADDI X5, X5, #1      // Should never reach here.										28
                                     // ERROR:               // Should never get here.
 1001000100_000000000001_11111_00001 // ADDI X1, X31, #1     // Error = 1
 000101_11111111111111111111111111   // B ERROR              // Loop forever (-1)
