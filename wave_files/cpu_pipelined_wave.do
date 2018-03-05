@@ -10,9 +10,10 @@ add wave -noupdate /cpu_pipelined_testbench/instr_out
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/RD1_ID_EX
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/RD2_ID_EX
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/se_out
-add wave -noupdate -radix decimal /cpu_pipelined_testbench/adder1out
+add wave -noupdate /cpu_pipelined_testbench/Rd_MEM_WB
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/forward1out
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/forward2out
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/adder1out
 add wave -noupdate /cpu_pipelined_testbench/readwrite1
 add wave -noupdate /cpu_pipelined_testbench/readwrite2
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/readwritemux2
@@ -41,7 +42,7 @@ add wave -noupdate -radix decimal /cpu_pipelined_testbench/pcaddr_IF_ID
 add wave -noupdate /cpu_pipelined_testbench/zero_alu
 add wave -noupdate /cpu_pipelined_testbench/zero_alu_EX_MEM
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {331430199 ps} 0}
+WaveRestoreCursors {{Cursor 1} {334343066 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 233
 configure wave -valuecolwidth 100
