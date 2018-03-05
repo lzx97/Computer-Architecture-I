@@ -8,7 +8,7 @@
 `timescale 1ns/10ps
 
 // How many bytes are in our memory?  Must be a power of two.
-`define DATA_MEM_SIZE		1024
+`define DATA_MEM_SIZE		32
 	
 module datamem (
 	input logic		[63:0]	address,
@@ -17,7 +17,8 @@ module datamem (
 	input logic		[63:0]	write_data,
 	input logic					clk,
 	input logic		[3:0]		xfer_size,
-	output logic	[63:0]	read_data
+	output logic	[63:0]	read_data, 
+	output logic [7:0] mem [`DATA_MEM_SIZE-1:0]
 	);
 
 	// Force %t's to print in a nice format.
@@ -36,7 +37,7 @@ module datamem (
 	end
 	
 	// The data storage itself.
-	logic [7:0] mem [`DATA_MEM_SIZE-1:0];
+	//logic [7:0] mem [`DATA_MEM_SIZE-1:0];
 	
 	// Compute a properly aligned address
 	logic [63:0] aligned_address;

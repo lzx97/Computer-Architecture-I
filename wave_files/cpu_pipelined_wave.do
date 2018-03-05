@@ -29,6 +29,9 @@ add wave -noupdate -radix decimal /cpu_pipelined_testbench/ALUresult_EX_MEM
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/ALUresult_MEM_WB
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/muxmemout
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/muxaluout
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/memory
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/memout
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/memout_MEM_WB
 add wave -noupdate /cpu_pipelined_testbench/ucborout
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/PCaddr_ID_EX
 add wave -noupdate /cpu_pipelined_testbench/cbzandout
@@ -42,7 +45,7 @@ add wave -noupdate -radix decimal /cpu_pipelined_testbench/pcaddr_IF_ID
 add wave -noupdate /cpu_pipelined_testbench/zero_alu
 add wave -noupdate /cpu_pipelined_testbench/zero_alu_EX_MEM
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {334343066 ps} 0}
+WaveRestoreCursors {{Cursor 1} {329099905 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 233
 configure wave -valuecolwidth 100
