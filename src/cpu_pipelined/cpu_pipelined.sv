@@ -119,7 +119,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     mux5x2_1 reg2 (     .out(muxreg2out), 
                         .w0(instr_out[20:16]), 
                         .w1(instr_out[4:0]), 
-                        .sel(instr_out[28]) // Reg2Loc
+                        .sel(control[0]) // Reg2Loc
     );
 
     regfile rf (        .ReadData1, 
