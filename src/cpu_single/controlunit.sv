@@ -211,16 +211,16 @@ module controlunit(Reg2Loc, UBranch, Branch, MemRead, MemtoReg, ALUOp, MemWrite,
 
             default: begin
                 Reg2Loc  =  1'bx;
-                UBranch  =  1'bx;
-                Branch   =  1'bx;
-                MemRead  =  1'bx;
+                UBranch  =  1'b0;
+                Branch   =  1'b0;
+                MemRead  =  1'b0;
                 MemtoReg =  1'bx;
                 ALUOp    =  3'bx;
-                MemWrite =  1'bx;
+                MemWrite =  1'b0;
                 ALUsrc   =  1'bx;
-                RegWrite =  1'bx;
+                RegWrite =  1'b0;
                 ShiftDir =  1'bx;
-				FlagEn   =  1'bx;
+				FlagEn   =  1'b0;
 				Brsel    =  1'bx;
             end
         endcase

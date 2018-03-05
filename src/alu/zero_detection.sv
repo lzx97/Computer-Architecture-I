@@ -2,9 +2,18 @@
 
 module zero_detection(zero, in);
 	input [63:0] in;
-	output zero;
+	output reg zero;
+
+	always_comb begin
+		if (in == 64'b0) begin
+			zero = 1'b1;
+		end
+		else begin
+			zero = 1'b0;
+		end
+	end
 	
-	wire [62:0] orout;
+	/*wire [62:0] orout;
 	
 	genvar i;
 	generate 
@@ -14,5 +23,5 @@ module zero_detection(zero, in);
 		end
 	endgenerate 
 	
-	not notgate (zero, orout[62]);
+	not notgate (zero, orout[62]);*/
 endmodule 
