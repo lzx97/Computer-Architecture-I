@@ -5,7 +5,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
             ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM,
             cbzandout, xorout, bltandout, muxbrsel, M_ID_EX, EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM, 
             se_out, adder1out, forward1out, forward2out, readwritemux1, readwritemux2, readwrite1, readwrite2, Rd_MEM_WB, memout_MEM_WB, memout,
-            memory);
+            memory, negative_flag, zero_flag, overflow_flag, carry_flag, zero_alu, negative_alu, overflow_alu, carry_alu);
     input clk, rst;
     output [31:0][63:0] reg_out;
     output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, se_out, adder1out, forward1out, forward2out, memout_MEM_WB;
@@ -13,9 +13,11 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     output [31:0] instr, instr_out;
     output [4:0] muxreg2out, M_EX_MEM, M_ID_EX, Rd_MEM_WB;
     output [1:0] ForwardA, ForwardB;
-    output ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM, readwrite1, readwrite2;
+    output ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu_EX_MEM, readwrite1, readwrite2;
     output [5:0] EX_ID_EX;
     output [7:0] memory [31:0];
+    output negative_flag, zero_flag, overflow_flag, carry_flag;
+    output zero_alu, negative_alu, overflow_alu, carry_alu;
 
     // IF stage variables
     wire [63:0] pcaddr_IF_ID;
@@ -43,8 +45,8 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 
     // EX stage variables
     wire zero_alu, negative_alu, overflow_alu, carry_alu;
-    wire zero_flag, negative_flag, overflow_flag, carryout_flag;
-    wire cbzandout, xorout, bltandout, muxbrsel, ucborout;
+    wire zero_flag, negative_flag, overflow_flag, carry_flag;
+    wire cbzandout, xorout_alu, bltandout_alu, muxbrsel, ucborout, xorout_flag, bltandout_flag, blt;
 
     wire [63:0] aluout, sl2out;
 
@@ -191,11 +193,16 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     and cbzand (cbzandout, control[10], zero_cbz); // M_EX_MEM[3] == Branch
     
     // Branch control for BLT
-    xor bltxor (xorout, negative_flag, overflow_flag);
-    and bltand (bltandout, control[10], xorout); // 
+    xor bltxor1 (xorout_flag, negative_flag, overflow_flag);
+    and bltand1 (bltandout_flag, control[10], xorout_flag); 
+
+    xor bltxor2 (xorout_alu, negative_alu, overflow_alu);
+    and bltand2 (bltandout_alu, control[10], xorout_alu); 
+
+    mux2_1 bltsel (.out(blt), .w0(bltandout_flag), .w1(bltandout_alu), .sel(EX_ID_EX[5]));
 	
     // Branch control for CBZ, BLT, and Unconditional Branch
-	mux2_1 brselmux (.out(muxbrsel), .w0(cbzandout), .w1(bltandout), .sel(control[11])); // M_EX_MEM[4] == brsel
+	mux2_1 brselmux (.out(muxbrsel), .w0(cbzandout), .w1(blt), .sel(control[11])); // M_EX_MEM[4] == brsel
     or ucdor (ucborout, muxbrsel, control[9]); // M_EX_MEM[2] == UBranch
 
     /* ---- ID stage ---- */
@@ -245,8 +252,8 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                     .shiftdir(EX_ID_EX[4]) // ShiftDir
     );
 
-    flagReg	fr (	.flag_out({negative_flag, zero_flag, overflow_flag, carry__flag}), 
-					.flag_in({negative_alu, zero_alu, overflow_alu, carry_out_alu}), 
+    flagReg	fr (	.flag_out({negative_flag, zero_flag, overflow_flag, carry_flag}), 
+					.flag_in({negative_alu, zero_alu, overflow_alu, carry_alu}), 
 					.enable(EX_ID_EX[5]), // set flags only on ADDS and SUBS
 					.clk, 
 					.rst
@@ -363,16 +370,18 @@ module cpu_pipelined_testbench;
     logic [31:0] instr, instr_out; 
     logic [4:0] muxreg2out, M_EX_MEM, M_ID_EX, Rd_MEM_WB;
     logic [1:0] ForwardA, ForwardB;
-    logic ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu, zero_alu_EX_MEM, readwrite1, readwrite2;
+    logic ucborout, cbzandout, xorout, bltandout, muxbrsel, zero_alu_EX_MEM, readwrite1, readwrite2;
     logic [5:0] EX_ID_EX;
     logic [7:0] memory [31:0];
+    logic negative_flag, zero_flag, overflow_flag, carry_flag;
+    logic zero_alu, negative_alu, overflow_alu, carry_alu;
 
 	// logic negative, zero, overflow, carry_out;
 
     cpu_pipelined dut (clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out,
         ForwardA, ForwardB, aluout, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM, cbzandout, xorout, bltandout, muxbrsel, M_ID_EX,
         EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM, se_out, adder1out, forward1out, forward2out, readwritemux1, readwritemux2, readwrite1, readwrite2, Rd_MEM_WB, memout_MEM_WB, memout,
-        memory);
+        memory, negative_flag, zero_flag, overflow_flag, carry_flag, zero_alu, negative_alu, overflow_alu, carry_alu);
 
     initial begin // Set up the clock
 		clk <= 0;

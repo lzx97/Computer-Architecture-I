@@ -6,14 +6,14 @@ module readwrite(readwrite1, readwrite2, Rd_MEM_WB, Rn, Rm, RegWrite_MEM_WB);
 
     always_comb begin
         if (RegWrite_MEM_WB) begin
-            if (Rd_MEM_WB == Rn) begin
+            if (Rd_MEM_WB == Rn && Rd_MEM_WB != 5'b11111) begin
                 readwrite1 = 1'b1;
             end
             else begin 
                 readwrite1 = 1'b0;
             end
             
-            if (Rd_MEM_WB == Rm) begin
+            if (Rd_MEM_WB == Rm && Rd_MEM_WB != 5'b11111) begin
                 readwrite2 = 1'b1;
             end
             else begin

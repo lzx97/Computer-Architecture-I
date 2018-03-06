@@ -16,8 +16,8 @@ add wave -noupdate -radix decimal /cpu_pipelined_testbench/forward2out
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/adder1out
 add wave -noupdate /cpu_pipelined_testbench/readwrite1
 add wave -noupdate /cpu_pipelined_testbench/readwrite2
-add wave -noupdate -radix decimal /cpu_pipelined_testbench/readwritemux2
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/readwritemux1
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/readwritemux2
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/ReadData1
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/ReadData2
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/se_ID_EX
@@ -44,11 +44,20 @@ add wave -noupdate /cpu_pipelined_testbench/EX_ID_EX
 add wave -noupdate -radix decimal /cpu_pipelined_testbench/pcaddr_IF_ID
 add wave -noupdate /cpu_pipelined_testbench/zero_alu
 add wave -noupdate /cpu_pipelined_testbench/zero_alu_EX_MEM
+add wave -noupdate /cpu_pipelined_testbench/zero_alu
+add wave -noupdate /cpu_pipelined_testbench/negative_alu
+add wave -noupdate /cpu_pipelined_testbench/overflow_alu
+add wave -noupdate /cpu_pipelined_testbench/carry_alu
+add wave -noupdate /cpu_pipelined_testbench/overflow_alu
+add wave -noupdate /cpu_pipelined_testbench/zero_flag
+add wave -noupdate /cpu_pipelined_testbench/negative_flag
+add wave -noupdate /cpu_pipelined_testbench/overflow_flag
+add wave -noupdate /cpu_pipelined_testbench/carry_flag
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {329099905 ps} 0}
+WaveRestoreCursors {{Cursor 1} {35401528 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 233
-configure wave -valuecolwidth 100
+configure wave -namecolwidth 266
+configure wave -valuecolwidth 201
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
 configure wave -snapdistance 10
@@ -61,4 +70,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {318613583 ps} {406915075 ps}
+WaveRestoreZoom {0 ps} {77149371 ps}
