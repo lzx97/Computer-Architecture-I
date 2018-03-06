@@ -259,6 +259,11 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
 					.rst
 	); 
 
+    wire [63:0] muxwritedata;
+    wire wdsel;
+    WriteData_unit wdu (.control(wdsel), .Rd_ID_EX, .Rd_EX_MEM);
+    mux64x2_1 WriteDatamux (.out(muxwritedata), .w0(RD2_ID_EX), .w1(ALUresult_EX_MEM), .sel(wdsel));
+
     /* ---- EX stage ---- */
 
     
@@ -272,7 +277,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                     .alu_flag_out({zero_alu_EX_MEM, negative_alu_EX_MEM, overflow_alu_EX_MEM, carryout_alu_EX_MEM}),
                     .flag_out({zero_flag_EX_MEM, negative_flag_EX_MEM, overflow_flag_EX_MEM, carryout_flag_EX_MEM}),
                     .ALUresult(aluout), 
-                    .WriteData(RD2_ID_EX), 
+                    .WriteData(muxwritedata), 
                     .addr(adder1out), 
                     .Rd(Rd_ID_EX), 
                     .WB(WB_ID_EX),
@@ -393,7 +398,7 @@ module cpu_pipelined_testbench;
         rst = 1; @(posedge clk);
 
         rst = 0;
-        for (i = 0; i < 80; i++) begin
+        for (i = 0; i < 500; i++) begin
             @(posedge clk);
         end
         $stop;
