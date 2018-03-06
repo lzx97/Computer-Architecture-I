@@ -53,8 +53,12 @@ add wave -noupdate /cpu_pipelined_testbench/zero_flag
 add wave -noupdate /cpu_pipelined_testbench/negative_flag
 add wave -noupdate /cpu_pipelined_testbench/overflow_flag
 add wave -noupdate /cpu_pipelined_testbench/carry_flag
+add wave -noupdate /cpu_pipelined_testbench/mfmuxcntrl
+add wave -noupdate /cpu_pipelined_testbench/WB_EX_MEM
+add wave -noupdate /cpu_pipelined_testbench/Rd_EX_MEM
+add wave -noupdate -radix decimal /cpu_pipelined_testbench/memforwardout
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {35401528 ps} 0}
+WaveRestoreCursors {{Cursor 1} {442440838 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 266
 configure wave -valuecolwidth 201
@@ -70,4 +74,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {77149371 ps}
+WaveRestoreZoom {429208098 ps} {506357469 ps}

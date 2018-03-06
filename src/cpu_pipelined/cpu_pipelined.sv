@@ -5,7 +5,8 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
             ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM,
             cbzandout, xorout, bltandout, muxbrsel, M_ID_EX, EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM, 
             se_out, adder1out, forward1out, forward2out, readwritemux1, readwritemux2, readwrite1, readwrite2, Rd_MEM_WB, memout_MEM_WB, memout,
-            memory, negative_flag, zero_flag, overflow_flag, carry_flag, zero_alu, negative_alu, overflow_alu, carry_alu);
+            memory, negative_flag, zero_flag, overflow_flag, carry_flag, zero_alu, negative_alu, overflow_alu, carry_alu,
+            mfmuxcntrl, WB_EX_MEM, Rd_EX_MEM, memforwardout);
     input clk, rst;
     output [31:0][63:0] reg_out;
     output [63:0] pc_out, muxbranchout, adder0out, addr_EX_MEM, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, se_out, adder1out, forward1out, forward2out, memout_MEM_WB;
@@ -18,6 +19,10 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     output [7:0] memory [31:0];
     output negative_flag, zero_flag, overflow_flag, carry_flag;
     output zero_alu, negative_alu, overflow_alu, carry_alu;
+    output mfmuxcntrl;
+    output [1:0] WB_EX_MEM;
+    output [4:0] Rd_EX_MEM;
+    output [63:0] memforwardout;
 
     // IF stage variables
     wire [63:0] pcaddr_IF_ID;
@@ -174,6 +179,12 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
     mux64x4_1 forwardmux1 (.out(forward1out), .w0(readwritemux1), .w1(ALUresult_EX_MEM), .w2(aluout), .w3(64'bx), .sel(ForwardA)); 
     mux64x4_1 forwardmux2 (.out(forward2out), .w0(readwritemux2), .w1(ALUresult_EX_MEM), .w2(aluout), .w3(64'bx), .sel(ForwardB)); 
 
+    wire mfmuxcntrl;
+    wire [63:0] memforwardout;
+    mem_forward mf (.select(mfmuxcntrl), .Rn(instr_out[9:5]), .Rd_EX_MEM, .RegWrite_EX_MEM(WB_EX_MEM[1]), .MemRead_EX_MEM(M_EX_MEM[0]));
+    mux64x2_1 memforwardmux (.out(memforwardout), .w0(forward1out), .w1(memout), .sel(mfmuxcntrl));
+
+
     // Branch addr calculation
     shiftleft2 sl2 (.out(sl2out), .in(se_out));
     alu adder1 (    .A(pcaddr_IF_ID), 
@@ -219,7 +230,7 @@ module cpu_pipelined(clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, 
                         .cntrl_EX_out(EX_ID_EX), 
                         .cntrl_M_out(M_ID_EX), 
                         .cntrl_WB_out(WB_ID_EX), 
-				        .ReadData1(forward1out), 
+				        .ReadData1(memforwardout), 
                         .ReadData2(forward2out), 
                         .PCaddr(pcaddr_IF_ID), 
                         .se(se_out), 
@@ -380,13 +391,17 @@ module cpu_pipelined_testbench;
     logic [7:0] memory [31:0];
     logic negative_flag, zero_flag, overflow_flag, carry_flag;
     logic zero_alu, negative_alu, overflow_alu, carry_alu;
+    logic mfmuxcntrl;
+    logic [1:0] WB_EX_MEM;
+    logic [4:0] Rd_EX_MEM;
+    logic [63:0] memforwardout;
 
 	// logic negative, zero, overflow, carry_out;
 
     cpu_pipelined dut (clk, rst, reg_out, pc_out, instr, instr_out, muxbranchout, adder0out, addr_EX_MEM, RD1_ID_EX, RD2_ID_EX, se_ID_EX, ReadData1, ReadData2, muxreg2out,
         ForwardA, ForwardB, aluout, ALUresult_EX_MEM, ALUresult_MEM_WB, muxmemout, muxaluout, ucborout, PCaddr_ID_EX, M_EX_MEM, cbzandout, xorout, bltandout, muxbrsel, M_ID_EX,
         EX_ID_EX, pcaddr_IF_ID, zero_alu, zero_alu_EX_MEM, se_out, adder1out, forward1out, forward2out, readwritemux1, readwritemux2, readwrite1, readwrite2, Rd_MEM_WB, memout_MEM_WB, memout,
-        memory, negative_flag, zero_flag, overflow_flag, carry_flag, zero_alu, negative_alu, overflow_alu, carry_alu);
+        memory, negative_flag, zero_flag, overflow_flag, carry_flag, zero_alu, negative_alu, overflow_alu, carry_alu, mfmuxcntrl, WB_EX_MEM, Rd_EX_MEM, memforwardout);
 
     initial begin // Set up the clock
 		clk <= 0;
@@ -398,7 +413,7 @@ module cpu_pipelined_testbench;
         rst = 1; @(posedge clk);
 
         rst = 0;
-        for (i = 0; i < 500; i++) begin
+        for (i = 0; i < 100; i++) begin
             @(posedge clk);
         end
         $stop;
