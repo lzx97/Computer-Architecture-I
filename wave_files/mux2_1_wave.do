@@ -1,11 +1,11 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /mux2_1_testbench/i0
-add wave -noupdate /mux2_1_testbench/i1
 add wave -noupdate /mux2_1_testbench/sel
-add wave -noupdate /mux2_1_testbench/out
+add wave -noupdate -radix decimal /mux2_1_testbench/out
+add wave -noupdate -radix decimal /mux2_1_testbench/w0
+add wave -noupdate -radix decimal /mux2_1_testbench/w1
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {166 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
