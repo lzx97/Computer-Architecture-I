@@ -18,7 +18,7 @@ module regfile(ReadData1, ReadData2, reg_out, WriteData, ReadRegister1, ReadRegi
 	genvar i;
 	generate 
 		for (i = 0; i < 31; i++) begin : reginit
-			register regs (.data_out(reg_out[i]), .data_in(WriteData), .enable(decoder_out[i]), .clk(clk), .rst(1'b0));
+			register #(.WIDTH(64)) regs (.data_out(reg_out[i]), .data_in(WriteData), .enable(decoder_out[i]), .clk(clk), .rst(1'b0));
 		end
 	endgenerate
 	
